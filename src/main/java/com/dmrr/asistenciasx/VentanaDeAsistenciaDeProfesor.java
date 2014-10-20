@@ -537,7 +537,17 @@ public final class VentanaDeAsistenciaDeProfesor extends javax.swing.JFrame {
 
     private boolean yaSeRegistroAsistencia() {
         dateTime = new DateTime();
-        String fechayhora = dateTime.toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:00:00"));
+        Integer minuto = Integer.parseInt(dateTime.toString(DateTimeFormat.forPattern("MM")));
+        String fechayhora;
+        if(minuto >=45){
+            dateTime.plusHours(1);
+            fechayhora = dateTime.toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:00:00"));
+            dateTime.minusHours(1);
+        }else{
+            fechayhora = dateTime.toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:00:00"));
+        }
+        
+        //String fechayhora = dateTime.toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:00:00"));
         Query yaSeRegistro = em.createNativeQuery("SELECT * FROM registrodeasistencias WHERE idprofesor = " + profesor.getIdprofesor() + " AND fechayhora BETWEEN '" + fechayhora + "' - INTERVAL 15 MINUTE AND '" + fechayhora + "' + INTERVAL 15 MINUTE");
         System.out.println(yaSeRegistro.toString());
         try {
