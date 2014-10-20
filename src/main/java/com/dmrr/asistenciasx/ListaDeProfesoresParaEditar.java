@@ -250,6 +250,7 @@ public class ListaDeProfesoresParaEditar extends javax.swing.JFrame {
         try {
             // TODO add your handling code here:
             if (jTable1.getValueAt(jTable1.getSelectedRow(), 6) == null) {
+                jLabelFotoDeProfesor.setIcon(new ImageIcon(getClass().getResource("/face-smile_120.png")));
                 return;
             }
             final BufferedImage image = ImageIO.read(new ByteArrayInputStream((byte[]) jTable1.getValueAt(jTable1.getSelectedRow(), 6)));
