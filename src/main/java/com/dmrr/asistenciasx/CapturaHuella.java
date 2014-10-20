@@ -39,6 +39,11 @@ import javax.swing.SwingUtilities;
 public class CapturaHuella extends javax.swing.JFrame {
 
     Integer idProfesor;
+
+    public void setIdProfesor(Integer idProfesor) {
+        this.idProfesor = idProfesor;
+    }
+    
     EntityManager em;
     ListaDeProfesoresParaEditar caller;
 
@@ -285,15 +290,16 @@ public class CapturaHuella extends javax.swing.JFrame {
         jLabel2.setText(4 - Reclutador.getFeaturesNeeded() + "/4 Huellas");
         EnviarTexto("Muestras de Huellas Necesarias para Guardar Template " + Reclutador.getFeaturesNeeded());
         if (Reclutador.getFeaturesNeeded() == 0) {
-            if (this.caller != null) {
-                this.caller.inicializarTabla();
-            }
             guardarHuella();
             Reclutador.clear();
             jLabel1.setIcon(null);
             stop();
             this.setVisible(false);
+            if (this.caller != null) {
+                this.caller.inicializarTabla();
+            }
             this.dispose();
+
             //this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
         }
 
@@ -445,7 +451,7 @@ public class CapturaHuella extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(CapturaHuella.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-        
+
         //</editor-fold>
 
         /* Create and display the form */

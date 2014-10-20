@@ -148,11 +148,13 @@ public class StartScreen extends javax.swing.JFrame {
     }//GEN-LAST:event_jLabel4MouseClicked
     ListaYCapturaDeAsistencias listaYCapturaDeAsistencias;
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        if(listaYCapturaDeAsistencias == null)
-        {
+        if (listaYCapturaDeAsistencias == null) {
             listaYCapturaDeAsistencias = new ListaYCapturaDeAsistencias(this);
+        } else {
+            listaYCapturaDeAsistencias.monitorDeHuella.lectorDeHuella.startCapture();
         }
         listaYCapturaDeAsistencias.setVisible(true);
+
         if (parent == null) {
             this.setAlwaysOnTop(false);
             this.setVisible(false);

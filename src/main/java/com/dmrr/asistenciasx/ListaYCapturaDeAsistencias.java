@@ -48,8 +48,8 @@ public class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
 
     StartScreen parent;
-
     MonitorDeHuella monitorDeHuella;
+    
     EntityManager em;
     List profesorList;
     List templates = null;
@@ -78,17 +78,16 @@ public class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
         Action escapeAction = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                monitorDeHuella.lectorDeHuella.stopCapture();
                 if (parent == null) {
                     System.exit(0);
                 };
                 if (parent.parent == null) {
-                    parent.setAlwaysOnTop(true);
                     parent.setVisible(true);
                     setVisible(false);
                     dispose();
                     return;
                 }
-                parent.parent.setAlwaysOnTop(true);
                 parent.parent.setVisible(true);
                 setVisible(false);
                 dispose();

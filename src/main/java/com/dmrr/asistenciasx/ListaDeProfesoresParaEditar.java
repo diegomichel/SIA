@@ -9,16 +9,15 @@ import bareMysqlTables.Profesor;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+import javax.persistence.CacheRetrieveMode;
 import javax.persistence.EntityManager;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import org.jdesktop.beansbinding.BindingGroup;
 
 /**
@@ -250,17 +249,11 @@ public class ListaDeProfesoresParaEditar extends javax.swing.JFrame {
     private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
         try {
             // TODO add your handling code here:
-            Integer idProfesor = Integer.parseInt(jTable1.getValueAt(jTable1.getSelectedRow(), 0).toString());
-            Profesor profesor = em.find(Profesor.class, idProfesor);
-
-            if (profesor.getFoto() == null) {
+            if (jTable1.getValueAt(jTable1.getSelectedRow(), 6) == null) {
                 return;
             }
-
-            final BufferedImage image = ImageIO.read(new ByteArrayInputStream(profesor.getFoto()));
-
+            final BufferedImage image = ImageIO.read(new ByteArrayInputStream((byte[]) jTable1.getValueAt(jTable1.getSelectedRow(), 6)));
             ImageIcon icon = new ImageIcon(image.getScaledInstance(160, 120, BufferedImage.SCALE_SMOOTH));
-
             jLabelFotoDeProfesor.setIcon(icon);
         } catch (IOException ex) {
             Logger.getLogger(ListaDeProfesoresParaEditar.class.getName()).log(Level.SEVERE, null, ex);
@@ -275,10 +268,10 @@ public class ListaDeProfesoresParaEditar extends javax.swing.JFrame {
             return;
         }
         Integer profesorId = (Integer) jTable1.getValueAt(row, 0);
-      
+
         ventanaListaDeHorarios.setIdProfesor(profesorId);
         ventanaListaDeHorarios.cargaHorariosEnJTable();
-       // ventanaListaDeHorarios.setVisible(true);
+        // ventanaListaDeHorarios.setVisible(true);
         ventanaListaDeHorarios.setListaProfesores(this);
         jScrollPane1.setViewportView(ventanaListaDeHorarios.getRootPane());
     }//GEN-LAST:event_jButtonHorariosActionPerformed

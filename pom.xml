@@ -63,11 +63,6 @@
             <version>1.2.1</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>LibreriaX</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>1</groupId>
             <artifactId>dpotapi</artifactId>
             <version>1</version>
