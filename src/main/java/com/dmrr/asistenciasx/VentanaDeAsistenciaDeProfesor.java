@@ -48,9 +48,9 @@ public final class VentanaDeAsistenciaDeProfesor extends javax.swing.JFrame {
      Variables de configuracion de comportamiento
      */
 
-    Integer MinutosAntesDeLaHora = 5;
+    Integer MinutosAntesDeLaHora = 15;
     Integer MinutosDespuesDeLaHora = 15;
-    Boolean permitirDobleRegistro = false;
+    Boolean permitirDobleRegistro = true;
 
     /**
      * Creates new form VentanaDeAsistenciaDeProfesor
@@ -432,7 +432,7 @@ public final class VentanaDeAsistenciaDeProfesor extends javax.swing.JFrame {
 
         if (dateTime.getMinuteOfHour() <= MinutosDespuesDeLaHora || dateTime.getMinuteOfHour() >= 60 - MinutosAntesDeLaHora) {
             if (yaSeRegistroAsistencia()) {
-                jLabelResultadoDeRegistro.setIcon(okImage);
+                jLabelResultadoDeRegistro.setIcon(infoImage);
                 jLabelResultadoDeRegistro.setText("Ya ha registrado su asistencia!");
                 return;
             }
@@ -537,15 +537,18 @@ public final class VentanaDeAsistenciaDeProfesor extends javax.swing.JFrame {
 
     private boolean yaSeRegistroAsistencia() {
         dateTime = new DateTime();
-        Integer minuto = Integer.parseInt(dateTime.toString(DateTimeFormat.forPattern("MM")));
+        Integer minuto = Integer.parseInt(dateTime.toString(DateTimeFormat.forPattern("m")));
+        System.out.println(minuto);
         String fechayhora;
-        if(minuto >=45){
-            dateTime.plusHours(1);
+        if (minuto >= 45) {
+            dateTime = dateTime.plusHours(1);
             fechayhora = dateTime.toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:00:00"));
-            dateTime.minusHours(1);
-        }else{
+            System.out.println(fechayhora);
+            dateTime = dateTime.minusHours(1);
+        } else {
             fechayhora = dateTime.toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:00:00"));
         }
+
         
         //String fechayhora = dateTime.toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:00:00"));
         Query yaSeRegistro = em.createNativeQuery("SELECT * FROM registrodeasistencias WHERE idprofesor = " + profesor.getIdprofesor() + " AND fechayhora BETWEEN '" + fechayhora + "' - INTERVAL 15 MINUTE AND '" + fechayhora + "' + INTERVAL 15 MINUTE");
