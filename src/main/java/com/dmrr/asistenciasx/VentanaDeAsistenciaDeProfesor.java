@@ -96,6 +96,10 @@ public final class VentanaDeAsistenciaDeProfesor extends javax.swing.JFrame {
 
         jPanelDatosProfesor.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Bienvenido " + profesor.getNombres() + " " + profesor.getApellidos(), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 18), new java.awt.Color(102, 0, 0)));
 
+        jLabelHoraDeEntrada.setText("");
+        jLabelNombreDeMateria.setText("");
+        jLabelSalon.setText("");
+        
         loadFoto(profesor);
         cargaHorariosEnJTable();
         checaHoraDeEntrada();
