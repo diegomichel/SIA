@@ -29,6 +29,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import static javax.swing.SwingConstants.CENTER;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.eclipse.persistence.config.QueryHints;
 import org.eclipse.persistence.config.ResultType;
 import org.jdesktop.beansbinding.AutoBinding;
@@ -95,13 +96,14 @@ public class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
         };
         this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escapeKeyStroke, "ESCAPE");
         this.getRootPane().getActionMap().put("ESCAPE", escapeAction);
+        
+        refreshListaDeProfesores();
     }
 
     VentanaDeAsistenciaDeProfesor ventanaDeProfesor;
 
     public void checarAsistencia(DPFPVerification verification, DPFPFeatureSet huellaCapturada) {
         Boolean teacherFound = false;
-        profesorList = profesorQuery.getResultList();
         for (Iterator it = profesorList.iterator(); it.hasNext();) {
             Profesor profesor = (Profesor) it.next();
             DPFPVerificationResult resultado;
@@ -348,5 +350,14 @@ public class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
         jLabelHuellaNoReconocida.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
         jLabelHuellaNoReconocida.setText("Huella no reconocida, trate de nuevo.");
         jLabelHuellaNoReconocida.setHorizontalAlignment(CENTER);
+    }
+
+    public void refreshListaDeProfesores() {
+        profesorList = profesorQuery.getResultList();
+        for (Iterator it = profesorList.iterator(); it.hasNext();) {
+            Profesor profesor = (Profesor) it.next();
+            em.refresh(profesor);
+            System.out.println(ToStringBuilder.reflectionToString(profesor));
+        }
     }
 }

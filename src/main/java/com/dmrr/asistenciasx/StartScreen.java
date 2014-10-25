@@ -152,6 +152,7 @@ public class StartScreen extends javax.swing.JFrame {
             listaYCapturaDeAsistencias = new ListaYCapturaDeAsistencias(this);
         } else {
             listaYCapturaDeAsistencias.monitorDeHuella.lectorDeHuella.startCapture();
+            listaYCapturaDeAsistencias.refreshListaDeProfesores();
         }
         listaYCapturaDeAsistencias.setVisible(true);
 
