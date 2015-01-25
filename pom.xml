@@ -33,6 +33,7 @@
                 <updatePolicy>never</updatePolicy>
             </releases>
         </repository> 
+        
         <repository>
             <id>SarXos Repository</id>
             <url>http://www.sarxos.pl/repo/maven2</url>
@@ -128,6 +129,11 @@
             <artifactId>jasperreports</artifactId>
             <version>5.6.0</version>
             <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>2.3</version>
         </dependency>
     </dependencies>
     

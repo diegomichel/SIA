@@ -50,7 +50,7 @@ public class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
 
     StartScreen parent;
     MonitorDeHuella monitorDeHuella;
-    
+
     EntityManager em;
     List profesorList;
     List templates = null;
@@ -70,7 +70,7 @@ public class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
         monitorDeHuella = new MonitorDeHuella(jTextArea1, this);
         em = javax.persistence.Persistence.createEntityManagerFactory("asistenciasx?zeroDateTimeBehavior=convertToNullPU").createEntityManager();
 
-        profesorQuery = em.createQuery("SELECT p FROM Profesor p WHERE p.huella is not null");
+        profesorQuery = em.createQuery("SELECT p FROM Profesor p ");//WHERE p.huella is not null");
 
         ventanaDeProfesor = new VentanaDeAsistenciaDeProfesor();
         createjLabelHuellaNoReconocida();
@@ -96,8 +96,10 @@ public class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
         };
         this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escapeKeyStroke, "ESCAPE");
         this.getRootPane().getActionMap().put("ESCAPE", escapeAction);
-        
+
         refreshListaDeProfesores();
+
+        loginViaNumPad();
     }
 
     VentanaDeAsistenciaDeProfesor ventanaDeProfesor;
@@ -167,6 +169,7 @@ public class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
+        jLabelCodigoProfesor = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(255, 255, 255));
@@ -210,6 +213,8 @@ public class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
         jTextArea1.setRows(5);
         jScrollPane2.setViewportView(jTextArea1);
 
+        jLabelCodigoProfesor.setFont(new java.awt.Font("Verdana", 1, 24)); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -218,13 +223,15 @@ public class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jScrollPane2)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 960, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jLabel5)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 285, Short.MAX_VALUE)
-                        .addComponent(jLabelReloj, javax.swing.GroupLayout.PREFERRED_SIZE, 523, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(18, 18, Short.MAX_VALUE)
+                        .addComponent(jLabelCodigoProfesor, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, Short.MAX_VALUE)
+                        .addComponent(jLabelReloj)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -234,7 +241,8 @@ public class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
                     .addComponent(jLabel1)
                     .addComponent(jLabel5)
-                    .addComponent(jLabelReloj))
+                    .addComponent(jLabelReloj)
+                    .addComponent(jLabelCodigoProfesor))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 482, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -294,6 +302,7 @@ public class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabelCodigoProfesor;
     private javax.swing.JLabel jLabelReloj;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
@@ -357,7 +366,76 @@ public class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
         for (Iterator it = profesorList.iterator(); it.hasNext();) {
             Profesor profesor = (Profesor) it.next();
             em.refresh(profesor);
-            System.out.println(ToStringBuilder.reflectionToString(profesor));
         }
+    }
+
+    private void loginViaNumPad() {
+        Action numpadAction = new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                jLabelCodigoProfesor.setText(jLabelCodigoProfesor.getText() + e.getActionCommand());
+                if (jLabelCodigoProfesor.getText().length() == 7) {
+                    //Check Profesor and go and delete
+                    Boolean teacherFound = false;
+                    for (Iterator it = profesorList.iterator(); it.hasNext();) {
+                        Profesor profesor = (Profesor) it.next();
+                        if (profesor.getIdprofesor().equals(Integer.parseInt(jLabelCodigoProfesor.getText()))) {
+                            jTextArea1.append("El profesor: " + profesor.getNombres() + " puso su dedo en el sensor\n");
+                            ventanaDeProfesor.llenaVentanaDeDatos(profesor);
+                            jScrollPane1.setViewportView(ventanaDeProfesor.getRootPane());
+                            setTablaDeRegistrosBackAfterSomeTime();
+                            teacherFound = true;
+                            break;
+                        }
+                    }
+                    if (!teacherFound) {
+                        jScrollPane1.setViewportView(jLabelHuellaNoReconocida);
+                        setTablaDeRegistrosBackAfterSomeTime();
+                    }
+                    jLabelCodigoProfesor.setText("");
+                }
+            }
+        };
+        this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD0, 0, false), "numpad0");
+        this.getRootPane().getActionMap().put("numpad0", numpadAction);
+
+        this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD1, 0, false), "numpad1");
+        this.getRootPane().getActionMap().put("numpad1", numpadAction);
+
+        this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD2, 0, false), "numpad2");
+        this.getRootPane().getActionMap().put("numpad2", numpadAction);
+
+        this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD3, 0, false), "numpad3");
+        this.getRootPane().getActionMap().put("numpad3", numpadAction);
+
+        this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD4, 0, false), "numpad4");
+        this.getRootPane().getActionMap().put("numpad4", numpadAction);
+
+        this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD5, 0, false), "numpad5");
+        this.getRootPane().getActionMap().put("numpad5", numpadAction);
+
+        this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD6, 0, false), "numpad6");
+        this.getRootPane().getActionMap().put("numpad6", numpadAction);
+
+        this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD7, 0, false), "numpad7");
+        this.getRootPane().getActionMap().put("numpad7", numpadAction);
+
+        this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD8, 0, false), "numpad8");
+        this.getRootPane().getActionMap().put("numpad8", numpadAction);
+
+        this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_NUMPAD9, 0, false), "numpad9");
+        this.getRootPane().getActionMap().put("numpad9", numpadAction);
+
+        this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0, false), "numpaddelete");
+        this.getRootPane().getActionMap().put("numpaddelete", numpadAction);
+
+        this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ADD, 0, false), "numpadplus");
+        this.getRootPane().getActionMap().put("numpadplus", numpadAction);
+
+        this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_SUBTRACT, 0, false), "numpadminus");
+        this.getRootPane().getActionMap().put("numpadminus", numpadAction);
+
+        this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, true), "enterlol");
+        this.getRootPane().getActionMap().put("enterlol", numpadAction);
     }
 }
