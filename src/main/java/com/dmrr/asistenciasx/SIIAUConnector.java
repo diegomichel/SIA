@@ -45,7 +45,7 @@ public class SIIAUConnector extends javax.swing.JFrame {
     String sessionId2;
 
     Map<String, String> departamentos;
-    
+
     StartScreen papa;
 
     /**
@@ -57,17 +57,16 @@ public class SIIAUConnector extends javax.swing.JFrame {
         departamentos = new HashMap<>();
         em = javax.persistence.Persistence.createEntityManagerFactory("asistenciasx?zeroDateTimeBehavior=convertToNullPU").createEntityManager();
         Calendar cal = Calendar.getInstance();
-        if(cal.get(Calendar.MONTH) + 1 <=5){
-            jTextFieldCiclo.setText(String.valueOf(cal.get(Calendar.YEAR))+"10");
-        }else
-        {
-            jTextFieldCiclo.setText(String.valueOf(cal.get(Calendar.YEAR))+"20");
+        if (cal.get(Calendar.MONTH) + 1 <= 5) {
+            jTextFieldCiclo.setText(String.valueOf(cal.get(Calendar.YEAR)) + "10");
+        } else {
+            jTextFieldCiclo.setText(String.valueOf(cal.get(Calendar.YEAR)) + "20");
         }
     }
-    
-    public SIIAUConnector(StartScreen aThis){
+
+    public SIIAUConnector(StartScreen aThis) {
         this();
-        this.papa=aThis;
+        this.papa = aThis;
     }
 
     /**
@@ -167,6 +166,11 @@ public class SIIAUConnector extends javax.swing.JFrame {
 
         jTextFieldProfesorId.setText("2914077");
         jTextFieldProfesorId.setEnabled(false);
+        jTextFieldProfesorId.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextFieldProfesorIdActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -592,6 +596,7 @@ public class SIIAUConnector extends javax.swing.JFrame {
                             for (Element trMaestro : tablaMaestros) {
                                 curso.setIdprofesor(Integer.parseInt(trMaestro.select("td:eq(1)").text()));
                                 tlog.append("Maestro del curso: " + curso.getIdcurso() + " : " + curso.getIdprofesor() + " \n");
+                                break; //Deberia haber un solo maestro por curso...
                             }
                         }
 
@@ -711,7 +716,7 @@ public class SIIAUConnector extends javax.swing.JFrame {
             Document login = respuesta.parse();
             sessionId = respuesta.cookie(getFecha() + "SIIAUSESION");
             sessionId2 = respuesta.cookie(getFecha() + "SIIAUUDG");
-            if(sessionId == null){
+            if (sessionId == null) {
                 JOptionPane.showMessageDialog(rootPane, "Cheque que la fecha de su Sistema Operativo sea la correcta.");
                 return;
             }
@@ -755,7 +760,7 @@ public class SIIAUConnector extends javax.swing.JFrame {
 
     private void jButtonSincronizaProfesorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSincronizaProfesorActionPerformed
         try {
-            int idProfesor=-1;
+            int idProfesor = -1;
             Document listaHorarios = Jsoup.connect("http://siiauescolar.siiau.udg.mx/wse/sspsecc.consulta_oferta")
                     .data("ciclop", jTextFieldCiclo.getText(), "cup", "J", "deptop", "", "ordenp", "0", "mostrarp", "1000", "tipop", "T", "secp", "A", "regp", "T", "codprofp", jTextFieldProfesorId.getText())
                     .userAgent("Mozilla")
@@ -834,19 +839,24 @@ public class SIIAUConnector extends javax.swing.JFrame {
                 }
             }
             Elements cursosTR = listaHorarios.select("body > table > tbody > tr");
-            
+
             cursosTR.remove(cursosTR.size() - 1);
             cursosTR.remove(cursosTR.size() - 1);
             cursosTR.remove(0);
             cursosTR.remove(0);
-            
+
             em.getTransaction().begin();
-            em.createNativeQuery("DELETE FROM curso WHERE idprofesor = "+idProfesor+"").executeUpdate();
+            em.createNativeQuery("DELETE FROM curso WHERE idprofesor = " + idProfesor + "").executeUpdate();
             em.getTransaction().commit();
             Curso curso;
             for (Element cursoTR : cursosTR) {
+
                 em.getTransaction().begin();
-                em.createNativeQuery("DELETE FROM horario WHERE idcurso = "+Integer.parseInt(cursoTR.select("td:eq(0)").first().text())+"").executeUpdate();
+                em.createNativeQuery("DELETE FROM curso WHERE idcurso = " + Integer.parseInt(cursoTR.select("td:eq(0)").first().text()) + "").executeUpdate();
+                em.getTransaction().commit();
+
+                em.getTransaction().begin();
+                em.createNativeQuery("DELETE FROM horario WHERE idcurso = " + Integer.parseInt(cursoTR.select("td:eq(0)").first().text()) + "").executeUpdate();
                 em.getTransaction().commit();
                 curso = new Curso();
                 curso.setIdcurso(Integer.parseInt(cursoTR.select("td:eq(0)").first().text()));
@@ -862,6 +872,7 @@ public class SIIAUConnector extends javax.swing.JFrame {
                     for (Element trMaestro : tablaMaestros) {
                         curso.setIdprofesor(Integer.parseInt(trMaestro.select("td:eq(1)").text()));
                         tlog.append("Maestro del curso: " + curso.getIdcurso() + " : " + curso.getIdprofesor() + " \n");
+                        break; //Deberia haber un solo maestro por curso...
                     }
                 }
 
@@ -921,7 +932,7 @@ public class SIIAUConnector extends javax.swing.JFrame {
                             horario.setSab(true);
                         }
                         horario.setIdcurso(curso.getIdcurso());
-                        
+
                         em.persist(horario);
                     }
                 }
@@ -958,13 +969,17 @@ public class SIIAUConnector extends javax.swing.JFrame {
     }//GEN-LAST:event_jButtonSincronizaProfesorActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-        if(papa==null) {
+        if (papa == null) {
         } else {
             papa.setAlwaysOnTop(true);
             papa.show();
         }
         this.dispose();
     }//GEN-LAST:event_formWindowClosing
+
+    private void jTextFieldProfesorIdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldProfesorIdActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextFieldProfesorIdActionPerformed
 
     /**
      * @param args the command line arguments
