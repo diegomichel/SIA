@@ -14,6 +14,7 @@ import java.awt.Cursor;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -55,7 +56,13 @@ public class SIIAUConnector extends javax.swing.JFrame {
         initComponents();
         departamentos = new HashMap<>();
         em = javax.persistence.Persistence.createEntityManagerFactory("asistenciasx?zeroDateTimeBehavior=convertToNullPU").createEntityManager();
-
+        Calendar cal = Calendar.getInstance();
+        if(cal.get(Calendar.MONTH) + 1 <=5){
+            jTextFieldCiclo.setText(String.valueOf(cal.get(Calendar.YEAR))+"10");
+        }else
+        {
+            jTextFieldCiclo.setText(String.valueOf(cal.get(Calendar.YEAR))+"20");
+        }
     }
     
     public SIIAUConnector(StartScreen aThis){
@@ -86,6 +93,10 @@ public class SIIAUConnector extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         jButtonSincronizaProfesor = new javax.swing.JButton();
         jTextFieldProfesorId = new javax.swing.JTextField();
+        jTextFieldCiclo = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jTextFieldCodigo = new javax.swing.JTextField();
@@ -181,24 +192,41 @@ public class SIIAUConnector extends javax.swing.JFrame {
             .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
+        jLabel4.setText("Ciclo");
+
+        jLabel5.setText("10 para A");
+
+        jLabel6.setText("20 para B");
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jButtonCarreras)
-                .addGap(18, 18, 18)
-                .addComponent(jButtonMaestros)
-                .addGap(12, 12, 12)
-                .addComponent(jButtonMaterias)
-                .addGap(18, 18, 18)
-                .addComponent(jButtonCursos)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jComboBoxDepartamento, javax.swing.GroupLayout.PREFERRED_SIZE, 385, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addGroup(jPanel2Layout.createSequentialGroup()
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jButtonCarreras)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButtonMaestros)
+                        .addGap(12, 12, 12)
+                        .addComponent(jButtonMaterias)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButtonCursos)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jComboBoxDepartamento, javax.swing.GroupLayout.PREFERRED_SIZE, 385, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jLabel4)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel5)
+                                .addComponent(jLabel6))
+                            .addComponent(jTextFieldCiclo, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)))))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -210,7 +238,15 @@ public class SIIAUConnector extends javax.swing.JFrame {
                     .addComponent(jButtonMaterias)
                     .addComponent(jButtonCursos)
                     .addComponent(jComboBoxDepartamento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 83, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jTextFieldCiclo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel5)
+                .addGap(3, 3, 3)
+                .addComponent(jLabel6)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
@@ -285,7 +321,7 @@ public class SIIAUConnector extends javax.swing.JFrame {
                     .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 479, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 476, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -375,7 +411,7 @@ public class SIIAUConnector extends javax.swing.JFrame {
             public void run() {
                 try {
                     Document listaHorarios = Jsoup.connect("http://siiauescolar.siiau.udg.mx/wse/sspsecc.consulta_oferta")
-                            .data("ciclop", "201420", "cup", "J", "deptop", "" + getCodigoDeDepartamento() + "", "ordenp", "0", "mostrarp", "1000", "tipop", "T", "secp", "A", "regp", "T")
+                            .data("ciclop", jTextFieldCiclo.getText(), "cup", "J", "deptop", "" + getCodigoDeDepartamento() + "", "ordenp", "0", "mostrarp", "1000", "tipop", "T", "secp", "A", "regp", "T")
                             .userAgent("Mozilla")
                             .cookie(getFecha() + "SIIAUSESION", sessionId)
                             .cookie(getFecha() + "SIIAUUDG", sessionId2)
@@ -436,7 +472,7 @@ public class SIIAUConnector extends javax.swing.JFrame {
                 try {
                     List listaMaterias = new ArrayList();
                     Document listaHorarios = Jsoup.connect("http://siiauescolar.siiau.udg.mx/wse/sspsecc.consulta_oferta")
-                            .data("ciclop", "201420", "cup", "J", "deptop", "" + getCodigoDeDepartamento() + "", "ordenp", "0", "mostrarp", "1000", "tipop", "T", "secp", "A", "regp", "T")
+                            .data("ciclop", jTextFieldCiclo.getText(), "cup", "J", "deptop", "" + getCodigoDeDepartamento() + "", "ordenp", "0", "mostrarp", "1000", "tipop", "T", "secp", "A", "regp", "T")
                             .userAgent("Mozilla")
                             .cookie(getFecha() + "SIIAUSESION", sessionId)
                             .cookie(getFecha() + "SIIAUUDG", sessionId2)
@@ -513,7 +549,7 @@ public class SIIAUConnector extends javax.swing.JFrame {
             public void run() {
                 try {
                     Document listaHorariosPage = Jsoup.connect("http://siiauescolar.siiau.udg.mx/wse/sspsecc.consulta_oferta")
-                            .data("ciclop", "201420", "cup", "J", "deptop", "" + getCodigoDeDepartamento() + "", "ordenp", "0", "mostrarp", "1000", "tipop", "T", "secp", "A", "regp", "T")
+                            .data("ciclop", jTextFieldCiclo.getText(), "cup", "J", "deptop", "" + getCodigoDeDepartamento() + "", "ordenp", "0", "mostrarp", "1000", "tipop", "T", "secp", "A", "regp", "T")
                             .userAgent("Mozilla")
                             .cookie(getFecha() + "SIIAUSESION", sessionId)
                             .cookie(getFecha() + "SIIAUUDG", sessionId2)
@@ -721,7 +757,7 @@ public class SIIAUConnector extends javax.swing.JFrame {
         try {
             int idProfesor=-1;
             Document listaHorarios = Jsoup.connect("http://siiauescolar.siiau.udg.mx/wse/sspsecc.consulta_oferta")
-                    .data("ciclop", "201420", "cup", "J", "deptop", "", "ordenp", "0", "mostrarp", "1000", "tipop", "T", "secp", "A", "regp", "T", "codprofp", jTextFieldProfesorId.getText())
+                    .data("ciclop", jTextFieldCiclo.getText(), "cup", "J", "deptop", "", "ordenp", "0", "mostrarp", "1000", "tipop", "T", "secp", "A", "regp", "T", "codprofp", jTextFieldProfesorId.getText())
                     .userAgent("Mozilla")
                     .cookie(getFecha() + "SIIAUSESION", sessionId)
                     .cookie(getFecha() + "SIIAUUDG", sessionId2)
@@ -798,10 +834,12 @@ public class SIIAUConnector extends javax.swing.JFrame {
                 }
             }
             Elements cursosTR = listaHorarios.select("body > table > tbody > tr");
+            
             cursosTR.remove(cursosTR.size() - 1);
             cursosTR.remove(cursosTR.size() - 1);
             cursosTR.remove(0);
             cursosTR.remove(0);
+            
             em.getTransaction().begin();
             em.createNativeQuery("DELETE FROM curso WHERE idprofesor = "+idProfesor+"").executeUpdate();
             em.getTransaction().commit();
@@ -1006,12 +1044,16 @@ public class SIIAUConnector extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPasswordField jPasswordFieldNIP;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextField jTextFieldCiclo;
     private javax.swing.JTextField jTextFieldCodigo;
     private javax.swing.JTextField jTextFieldProfesorId;
     private javax.swing.JTextArea tlog;
