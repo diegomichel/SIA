@@ -4,7 +4,7 @@ USE `asistenciasx`;
 --
 -- Host: localhost    Database: asistenciasx
 -- ------------------------------------------------------
--- Server version	5.6.19
+-- Server version	5.6.22-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -76,7 +76,7 @@ CREATE TABLE `horario` (
   `idcurso` int(11) DEFAULT NULL,
   PRIMARY KEY (`idhorario`),
   KEY `idcurso_idx` (`idcurso`)
-) ENGINE=InnoDB AUTO_INCREMENT=117 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=776 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -167,6 +167,7 @@ CREATE TABLE `profesor` (
   `celular` varchar(50) DEFAULT NULL,
   `foto` blob,
   `huella` blob,
+  `huellavirdi` varchar(12000) DEFAULT NULL,
   PRIMARY KEY (`idprofesor`),
   UNIQUE KEY `Codigo_UNIQUE` (`idprofesor`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -289,4 +290,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-10-19 21:13:28
+-- Dump completed on 2015-01-31  5:07:06

@@ -6,6 +6,7 @@
 package com.dmrr.asistenciasx;
 
 import bareMysqlTables.Profesor;
+import com.unioncomm.sdk.bsp.UCBioBSPJNI;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -76,6 +77,10 @@ public class ListaDeProfesoresParaEditar extends javax.swing.JFrame {
         columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${huella}"));
         columnBinding.setColumnName("Huella");
         columnBinding.setColumnClass(byte[].class);
+        columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${huellavirdi}"));
+        columnBinding.setColumnName("HuellaVirdi");
+        columnBinding.setColumnClass(String.class);
+        
         bindingGroup.addBinding(jTableBinding);
 
         jScrollPane1.setViewportView(jTable1);
@@ -107,6 +112,7 @@ public class ListaDeProfesoresParaEditar extends javax.swing.JFrame {
         jLabelFotoDeProfesor = new javax.swing.JLabel();
         jButtonHorarios = new javax.swing.JButton();
         jTextField1 = new javax.swing.JTextField();
+        jButtonCapturaHuella1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -139,7 +145,7 @@ public class ListaDeProfesoresParaEditar extends javax.swing.JFrame {
             }
         });
 
-        jButtonCapturaHuella.setText("Capturar Huella");
+        jButtonCapturaHuella.setText("Capturar Huella DigitaPersona");
         jButtonCapturaHuella.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonCapturaHuellaActionPerformed(evt);
@@ -162,6 +168,13 @@ public class ListaDeProfesoresParaEditar extends javax.swing.JFrame {
             }
         });
 
+        jButtonCapturaHuella1.setText("Capturar Huella VIRDI");
+        jButtonCapturaHuella1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonCapturaHuella1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -178,11 +191,14 @@ public class ListaDeProfesoresParaEditar extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jLabelFotoDeProfesor, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jButtonCapturaHuella, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jButtonCapturaFoto, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jButton1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jButtonHorarios, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(jLabelFotoDeProfesor, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(jButton1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(jButtonHorarios, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jButtonCapturaFoto, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(jButtonCapturaHuella1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jButtonCapturaHuella, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -196,13 +212,15 @@ public class ListaDeProfesoresParaEditar extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabelFotoDeProfesor, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButtonCapturaHuella)
-                        .addGap(18, 18, 18)
-                        .addComponent(jButtonCapturaFoto)
-                        .addGap(18, 18, 18)
-                        .addComponent(jButtonHorarios)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jButtonCapturaHuella1)
                         .addGap(22, 22, 22)
+                        .addComponent(jButtonCapturaHuella)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonCapturaFoto)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonHorarios)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton1)
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 515, Short.MAX_VALUE))
@@ -272,10 +290,35 @@ public class ListaDeProfesoresParaEditar extends javax.swing.JFrame {
 
         ventanaListaDeHorarios.setIdProfesor(profesorId);
         ventanaListaDeHorarios.cargaHorariosEnJTable();
-        // ventanaListaDeHorarios.setVisible(true);
         ventanaListaDeHorarios.setListaProfesores(this);
         jScrollPane1.setViewportView(ventanaListaDeHorarios.getRootPane());
     }//GEN-LAST:event_jButtonHorariosActionPerformed
+
+    private void jButtonCapturaHuella1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCapturaHuella1ActionPerformed
+        int x = jTable1.getSelectedRow();
+        if (x == -1) {
+            JOptionPane.showMessageDialog(this, "Seleccione un profesor primero", "Datos incompletos",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        Integer idProfesor = Integer.parseInt(jTable1.getValueAt(x, 0).toString());
+        
+        VirdiFingerPrintSensor sensor = new VirdiFingerPrintSensor();
+        String huellaVirdi = sensor.capturaHuella(idProfesor);
+        sensor.close();
+        
+        Profesor profesor = null;
+        profesor = em.find(Profesor.class, idProfesor);
+
+        if (profesor != null) {
+            em.getTransaction().begin();
+            profesor.setHuellavirdi(huellaVirdi);
+            em.getTransaction().commit();
+            inicializarTabla();
+        } else {
+            JOptionPane.showMessageDialog(rootPane, "No existe el profesor con ese id");
+        }
+    }//GEN-LAST:event_jButtonCapturaHuella1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -319,6 +362,7 @@ public class ListaDeProfesoresParaEditar extends javax.swing.JFrame {
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButtonCapturaFoto;
     private javax.swing.JButton jButtonCapturaHuella;
+    private javax.swing.JButton jButtonCapturaHuella1;
     private javax.swing.JButton jButtonHorarios;
     private javax.swing.JButton jButtonObtenerProfesores;
     private javax.swing.JLabel jLabelFotoDeProfesor;
@@ -331,9 +375,5 @@ public class ListaDeProfesoresParaEditar extends javax.swing.JFrame {
 
     public void setjScrollBack() {
         this.jScrollPane1.setViewportView(jTable1);
-    }
-
-    public void updateFoto(String nombre) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

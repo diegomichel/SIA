@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import javafx.scene.input.KeyCode;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.swing.AbstractAction;
@@ -29,7 +28,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import static javax.swing.SwingConstants.CENTER;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import javax.swing.text.DefaultCaret;
 import org.eclipse.persistence.config.QueryHints;
 import org.eclipse.persistence.config.ResultType;
 import org.jdesktop.beansbinding.AutoBinding;
@@ -42,7 +41,7 @@ import org.jdesktop.swingbinding.SwingBindings;
  *
  * @author diego
  */
-public class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
+public final class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
 
     private javax.persistence.EntityManager entityManager;
     private javax.persistence.Query registrosQuery;
@@ -58,16 +57,21 @@ public class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
     JLabel jLabelHuellaNoReconocida;
     Query profesorQuery;
 
+    Configuracion c = new Configuracion();
+
     public ListaYCapturaDeAsistencias() {
         this.setUndecorated(true);
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
         initComponents();
+        DefaultCaret caret = (DefaultCaret) jTextArea1.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+
         Clock clock = new Clock(jLabelReloj, "hh:mm:ss MM/dd/yyyy");
         this.generaTablaRegistros();
         this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-
-        //jScrollPane1.setViewportView(new MensajeMantengaPresionado());
-        monitorDeHuella = new MonitorDeHuella(jTextArea1, this);
+        if (c.get("digitalpersona")) {
+            monitorDeHuella = new MonitorDeHuella(jTextArea1, this);
+        }
         em = javax.persistence.Persistence.createEntityManagerFactory("asistenciasx?zeroDateTimeBehavior=convertToNullPU").createEntityManager();
 
         profesorQuery = em.createQuery("SELECT p FROM Profesor p ");//WHERE p.huella is not null");
@@ -79,10 +83,12 @@ public class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
         Action escapeAction = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                monitorDeHuella.lectorDeHuella.stopCapture();
+                if (c.get("digitalpersona")) {
+                    monitorDeHuella.lectorDeHuella.stopCapture();
+                }
                 if (parent == null) {
                     System.exit(0);
-                };
+                }
                 if (parent.parent == null) {
                     parent.setVisible(true);
                     setVisible(false);
@@ -99,7 +105,12 @@ public class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
 
         refreshListaDeProfesores();
 
-        loginViaNumPad();
+        if (c.get("teclado")) {
+            loginViaNumPad();
+        }
+        if (c.get("virdi")) {
+            loginViaVirdi();
+        }
     }
 
     VentanaDeAsistenciaDeProfesor ventanaDeProfesor;
@@ -121,11 +132,8 @@ public class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
             }
         }
         if (!teacherFound) {
-            //jScrollPane1.setViewportView(jTableRegistro);
-            //jTextArea1.append("Huella no reconocida trate de nuevo\n");
             jScrollPane1.setViewportView(jLabelHuellaNoReconocida);
             setTablaDeRegistrosBackAfterSomeTime();
-            //generaTablaRegistros();
         }
     }
     Boolean contando = false;
@@ -170,6 +178,7 @@ public class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
         jLabelCodigoProfesor = new javax.swing.JLabel();
+        canvas = new java.awt.Canvas();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(255, 255, 255));
@@ -211,6 +220,7 @@ public class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
 
         jTextArea1.setColumns(20);
         jTextArea1.setRows(5);
+        jTextArea1.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
         jScrollPane2.setViewportView(jTextArea1);
 
         jLabelCodigoProfesor.setFont(new java.awt.Font("Verdana", 1, 24)); // NOI18N
@@ -222,16 +232,19 @@ public class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane2)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 960, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jLabel5)
-                        .addGap(18, 18, Short.MAX_VALUE)
+                        .addGap(18, 199, Short.MAX_VALUE)
                         .addComponent(jLabelCodigoProfesor, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, Short.MAX_VALUE)
-                        .addComponent(jLabelReloj)))
+                        .addGap(18, 200, Short.MAX_VALUE)
+                        .addComponent(jLabelReloj))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addComponent(jScrollPane2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(canvas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -244,9 +257,11 @@ public class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
                     .addComponent(jLabelReloj)
                     .addComponent(jLabelCodigoProfesor))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 482, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 478, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(canvas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
@@ -300,6 +315,7 @@ public class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private java.awt.Canvas canvas;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabelCodigoProfesor;
@@ -375,7 +391,6 @@ public class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
             public void actionPerformed(ActionEvent e) {
                 jLabelCodigoProfesor.setText(jLabelCodigoProfesor.getText() + e.getActionCommand());
                 if (jLabelCodigoProfesor.getText().length() == 7) {
-                    //Check Profesor and go and delete
                     Boolean teacherFound = false;
                     for (Iterator it = profesorList.iterator(); it.hasNext();) {
                         Profesor profesor = (Profesor) it.next();
@@ -437,5 +452,25 @@ public class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
 
         this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, true), "enterlol");
         this.getRootPane().getActionMap().put("enterlol", numpadAction);
+    }
+
+    private void loginViaVirdi() {
+        VirdiFingerPrintSensor sensor = new VirdiFingerPrintSensor();
+        sensor.preparaEngine(profesorList);
+        sensor.esperaPorHuella(canvas, jTextArea1, this);
+    }
+
+    void fireAsistencia(Integer profesorID) {
+        Profesor profesor = em.find(Profesor.class, profesorID);
+        jTextArea1.append("El profesor: " + profesor.getNombres() + " con codigo " + profesorID + " puso su dedo en el sensor\n");
+        ventanaDeProfesor.llenaVentanaDeDatos(profesor);
+        jScrollPane1.setViewportView(ventanaDeProfesor.getRootPane());
+        setTablaDeRegistrosBackAfterSomeTime();
+
+    }
+
+    void fireHuellaNoReconocida() {
+        jScrollPane1.setViewportView(jLabelHuellaNoReconocida);
+        setTablaDeRegistrosBackAfterSomeTime();
     }
 }

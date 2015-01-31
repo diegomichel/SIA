@@ -5,6 +5,11 @@
  */
 package com.dmrr.asistenciasx;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFrame;
 
 /**
@@ -16,9 +21,11 @@ public class Main extends javax.swing.JFrame {
     /**
      * Creates new form Herramientas
      */
+    
     public Main() {
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
         initComponents();
+       
 
         StartScreen m = new StartScreen(this);
         jTabbedPane1.insertTab("Inicio", null, m.getComponent(0), "Las opciones de inicio", 0);

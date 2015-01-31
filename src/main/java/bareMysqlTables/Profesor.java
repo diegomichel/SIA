@@ -20,7 +20,7 @@ import javax.persistence.Transient;
 
 /**
  *
- * @author diego
+ * @author diegomichel
  */
 @Entity
 @Table(name = "profesor", catalog = "asistenciasx", schema = "")
@@ -31,7 +31,8 @@ import javax.persistence.Transient;
     @NamedQuery(name = "Profesor.findByApellidos", query = "SELECT p FROM Profesor p WHERE p.apellidos = :apellidos"),
     @NamedQuery(name = "Profesor.findByEmail", query = "SELECT p FROM Profesor p WHERE p.email = :email"),
     @NamedQuery(name = "Profesor.findByTelefono", query = "SELECT p FROM Profesor p WHERE p.telefono = :telefono"),
-    @NamedQuery(name = "Profesor.findByCelular", query = "SELECT p FROM Profesor p WHERE p.celular = :celular")})
+    @NamedQuery(name = "Profesor.findByCelular", query = "SELECT p FROM Profesor p WHERE p.celular = :celular"),
+    @NamedQuery(name = "Profesor.findByHuellavirdi", query = "SELECT p FROM Profesor p WHERE p.huellavirdi = :huellavirdi")})
 public class Profesor implements Serializable {
     @Transient
     private PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
@@ -58,6 +59,8 @@ public class Profesor implements Serializable {
     @Lob
     @Column(name = "huella")
     private byte[] huella;
+    @Column(name = "huellavirdi")
+    private String huellavirdi;
 
     public Profesor() {
     }
@@ -150,6 +153,16 @@ public class Profesor implements Serializable {
         byte[] oldHuella = this.huella;
         this.huella = huella;
         changeSupport.firePropertyChange("huella", oldHuella, huella);
+    }
+
+    public String getHuellavirdi() {
+        return huellavirdi;
+    }
+
+    public void setHuellavirdi(String huellavirdi) {
+        String oldHuellavirdi = this.huellavirdi;
+        this.huellavirdi = huellavirdi;
+        changeSupport.firePropertyChange("huellavirdi", oldHuellavirdi, huellavirdi);
     }
 
     @Override

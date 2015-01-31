@@ -19,10 +19,32 @@ public class StartScreen extends javax.swing.JFrame {
      * Creates new form StartScreen
      */
     Main parent;
+    Configuracion c;
 
     public StartScreen() {
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
         initComponents();
+        
+        c = new Configuracion();
+        
+        if(c.get("digitalpersona")){
+            jCheckBoxDigitalPersona.setSelected(true);
+        }else{
+            jCheckBoxDigitalPersona.setSelected(false);
+        }
+        
+        if(c.get("virdi")){
+            jCheckBoxVIRDI.setSelected(true);
+        }else{
+            jCheckBoxVIRDI.setSelected(false);
+        }
+        
+        if(c.get("teclado")){
+            jCheckBoxTeclado.setSelected(true);
+        }else{
+            jCheckBoxTeclado.setSelected(false);
+        }
+        
     }
 
     public StartScreen(Main aThis) {
@@ -45,6 +67,10 @@ public class StartScreen extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
+        jCheckBoxDigitalPersona = new javax.swing.JCheckBox();
+        jCheckBoxVIRDI = new javax.swing.JCheckBox();
+        jCheckBoxTeclado = new javax.swing.JCheckBox();
+        jLabelError = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setAlwaysOnTop(true);
@@ -84,6 +110,34 @@ public class StartScreen extends javax.swing.JFrame {
             }
         });
 
+        jCheckBoxDigitalPersona.setSelected(true);
+        jCheckBoxDigitalPersona.setText("Usar Sensor DigitalPersona");
+        jCheckBoxDigitalPersona.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBoxDigitalPersonaActionPerformed(evt);
+            }
+        });
+
+        jCheckBoxVIRDI.setSelected(true);
+        jCheckBoxVIRDI.setText("Usar Sensor VIRDI");
+        jCheckBoxVIRDI.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBoxVIRDIActionPerformed(evt);
+            }
+        });
+
+        jCheckBoxTeclado.setSelected(true);
+        jCheckBoxTeclado.setText("Usar Teclado Numerico");
+        jCheckBoxTeclado.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBoxTecladoActionPerformed(evt);
+            }
+        });
+
+        jLabelError.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        jLabelError.setForeground(new java.awt.Color(153, 0, 51));
+        jLabelError.setText("               ");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -95,7 +149,14 @@ public class StartScreen extends javax.swing.JFrame {
                     .addComponent(jLabel3)
                     .addComponent(jLabel5)
                     .addComponent(jLabel4)
-                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 290, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 290, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jCheckBoxDigitalPersona)
+                        .addGap(18, 18, 18)
+                        .addComponent(jCheckBoxVIRDI)
+                        .addGap(18, 18, 18)
+                        .addComponent(jCheckBoxTeclado))
+                    .addComponent(jLabelError))
                 .addContainerGap(23, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -109,7 +170,14 @@ public class StartScreen extends javax.swing.JFrame {
                 .addComponent(jLabel4)
                 .addGap(18, 18, 18)
                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 64, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabelError)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jCheckBoxDigitalPersona)
+                    .addComponent(jCheckBoxVIRDI)
+                    .addComponent(jCheckBoxTeclado))
+                .addGap(18, 18, 18)
                 .addComponent(jLabel3)
                 .addContainerGap())
         );
@@ -148,6 +216,12 @@ public class StartScreen extends javax.swing.JFrame {
     }//GEN-LAST:event_jLabel4MouseClicked
     ListaYCapturaDeAsistencias listaYCapturaDeAsistencias;
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        
+        if(!c.get("teclado") && !c.get("virdi") && !c.get("digitalpersona")){
+            jLabelError.setText("Seleccione por lo menos una opcion para registrar las asistencias.");
+            return;
+        }
+        
         if (listaYCapturaDeAsistencias == null) {
             listaYCapturaDeAsistencias = new ListaYCapturaDeAsistencias(this);
         } else {
@@ -164,6 +238,18 @@ public class StartScreen extends javax.swing.JFrame {
         this.parent.setAlwaysOnTop(false);
         this.parent.setVisible(false);
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jCheckBoxDigitalPersonaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxDigitalPersonaActionPerformed
+        c.set("digitalpersona", jCheckBoxDigitalPersona.isSelected());
+    }//GEN-LAST:event_jCheckBoxDigitalPersonaActionPerformed
+
+    private void jCheckBoxVIRDIActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxVIRDIActionPerformed
+        c.set("virdi", jCheckBoxVIRDI.isSelected());
+    }//GEN-LAST:event_jCheckBoxVIRDIActionPerformed
+
+    private void jCheckBoxTecladoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxTecladoActionPerformed
+        c.set("teclado", jCheckBoxTeclado.isSelected());
+    }//GEN-LAST:event_jCheckBoxTecladoActionPerformed
 
     /**
      * @param args the command line arguments
@@ -198,9 +284,13 @@ public class StartScreen extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
+    private javax.swing.JCheckBox jCheckBoxDigitalPersona;
+    private javax.swing.JCheckBox jCheckBoxTeclado;
+    private javax.swing.JCheckBox jCheckBoxVIRDI;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabelError;
     // End of variables declaration//GEN-END:variables
 }

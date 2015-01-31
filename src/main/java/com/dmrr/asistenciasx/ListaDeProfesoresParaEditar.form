@@ -61,12 +61,17 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="jLabelFotoDeProfesor" alignment="1" min="-2" pref="162" max="-2" attributes="0"/>
-                              <Component id="jButtonCapturaHuella" alignment="1" min="-2" pref="162" max="-2" attributes="0"/>
-                              <Component id="jButtonCapturaFoto" alignment="1" min="-2" pref="162" max="-2" attributes="0"/>
-                              <Component id="jButton1" alignment="1" min="-2" pref="162" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Component id="jLabelFotoDeProfesor" alignment="1" min="-2" pref="162" max="-2" attributes="0"/>
+                                      <Component id="jButton1" alignment="1" min="-2" pref="162" max="-2" attributes="0"/>
+                                  </Group>
+                                  <Component id="jButtonHorarios" alignment="1" min="-2" pref="162" max="-2" attributes="0"/>
+                                  <Component id="jButtonCapturaFoto" min="-2" pref="162" max="-2" attributes="0"/>
+                              </Group>
+                              <Component id="jButtonCapturaHuella1" alignment="1" min="-2" pref="162" max="-2" attributes="0"/>
                           </Group>
-                          <Component id="jButtonHorarios" alignment="1" min="-2" pref="162" max="-2" attributes="0"/>
+                          <Component id="jButtonCapturaHuella" min="-2" pref="162" max="-2" attributes="0"/>
                       </Group>
                   </Group>
               </Group>
@@ -86,13 +91,15 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
                       <Component id="jLabelFotoDeProfesor" min="-2" pref="127" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jButtonCapturaHuella" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="jButtonCapturaFoto" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="jButtonHorarios" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                      <Component id="jButtonCapturaHuella1" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
+                      <Component id="jButtonCapturaHuella" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jButtonCapturaFoto" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jButtonHorarios" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Component id="jButton1" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
@@ -147,7 +154,7 @@
     </Component>
     <Component class="javax.swing.JButton" name="jButtonCapturaHuella">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Capturar Huella"/>
+        <Property name="text" type="java.lang.String" value="Capturar Huella DigitaPersona"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonCapturaHuellaActionPerformed"/>
@@ -179,6 +186,14 @@
       </Events>
     </Component>
     <Component class="javax.swing.JTextField" name="jTextField1">
+    </Component>
+    <Component class="javax.swing.JButton" name="jButtonCapturaHuella1">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Capturar Huella VIRDI"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonCapturaHuella1ActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

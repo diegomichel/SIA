@@ -136,9 +136,9 @@
             <version>2.3</version>
         </dependency>
         <dependency>
-            <groupId>nitgen</groupId>
-            <artifactId>nbiobsp</artifactId>
-            <version>1</version>
+            <groupId>external</groupId>
+            <artifactId>ucbio</artifactId>
+            <version>3.7</version>
         </dependency>
     </dependencies>
     
