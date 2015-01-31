@@ -1,24 +1,24 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * TODO: Asignar materia a otro profesor.
  */
 package com.dmrr.asistenciasx;
 
+import bareMysqlTables.Carrera;
 import bareMysqlTables.Profesor;
-import com.unioncomm.sdk.bsp.UCBioBSPJNI;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-import javax.persistence.CacheRetrieveMode;
 import javax.persistence.EntityManager;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
+import javax.swing.event.CellEditorListener;
+import javax.swing.event.ChangeEvent;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.codehaus.plexus.util.StringUtils;
 import org.jdesktop.beansbinding.BindingGroup;
 
 /**
@@ -41,6 +41,30 @@ public class ListaDeProfesoresParaEditar extends javax.swing.JFrame {
         }
         initComponents();
         ventanaListaDeHorarios = new ListaDeHorariosDeProfesor();
+
+        jTable1.getDefaultEditor(String.class).addCellEditorListener(
+                new CellEditorListener() {
+                    @Override
+                    public void editingCanceled(ChangeEvent e) {
+                    }
+
+                    @Override
+                    public void editingStopped(ChangeEvent e) {
+                        entityManager.getTransaction().begin();
+                        entityManager.getTransaction().commit();
+                        inicializarTabla();
+                        if (parent != null) {
+                            parent.setEstado("Se guardaron los datos");
+                        }
+                    }
+                });
+    }
+
+    Main parent;
+
+    ListaDeProfesoresParaEditar(Main aThis) {
+        this();
+        parent = aThis;
     }
 
     public void inicializarTabla() {
@@ -80,7 +104,7 @@ public class ListaDeProfesoresParaEditar extends javax.swing.JFrame {
         columnBinding = jTableBinding.addColumnBinding(org.jdesktop.beansbinding.ELProperty.create("${huellavirdi}"));
         columnBinding.setColumnName("HuellaVirdi");
         columnBinding.setColumnClass(String.class);
-        
+
         bindingGroup.addBinding(jTableBinding);
 
         jScrollPane1.setViewportView(jTable1);
@@ -89,6 +113,7 @@ public class ListaDeProfesoresParaEditar extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
 
         bindingGroup.bind();
+        filtroDeTabla = new FiltroDeTabla(jTable1, jTextField1);
     }
 
     /**
@@ -106,13 +131,13 @@ public class ListaDeProfesoresParaEditar extends javax.swing.JFrame {
         jButtonObtenerProfesores = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
-        jButton1 = new javax.swing.JButton();
         jButtonCapturaHuella = new javax.swing.JButton();
         jButtonCapturaFoto = new javax.swing.JButton();
         jLabelFotoDeProfesor = new javax.swing.JLabel();
         jButtonHorarios = new javax.swing.JButton();
         jTextField1 = new javax.swing.JTextField();
         jButtonCapturaHuella1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -136,14 +161,15 @@ public class ListaDeProfesoresParaEditar extends javax.swing.JFrame {
                 jTable1MouseClicked(evt);
             }
         });
-        jScrollPane1.setViewportView(jTable1);
-
-        jButton1.setText("Guardar Cambios");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+        jTable1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jTable1KeyPressed(evt);
+            }
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                jTable1KeyTyped(evt);
             }
         });
+        jScrollPane1.setViewportView(jTable1);
 
         jButtonCapturaHuella.setText("Capturar Huella DigitaPersona");
         jButtonCapturaHuella.addActionListener(new java.awt.event.ActionListener() {
@@ -175,6 +201,13 @@ public class ListaDeProfesoresParaEditar extends javax.swing.JFrame {
             }
         });
 
+        jButton2.setText("Eliminar");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -192,13 +225,14 @@ public class ListaDeProfesoresParaEditar extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(jLabelFotoDeProfesor, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(jButton1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(jLabelFotoDeProfesor, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(jButtonHorarios, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(jButtonCapturaFoto, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addComponent(jButtonCapturaHuella1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jButtonCapturaHuella, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(jButtonCapturaHuella, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(jButton2)
+                                .addGap(43, 43, 43)))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -220,9 +254,8 @@ public class ListaDeProfesoresParaEditar extends javax.swing.JFrame {
                         .addComponent(jButtonCapturaFoto)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButtonHorarios)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton1)
-                        .addGap(0, 0, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton2))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 515, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -232,13 +265,7 @@ public class ListaDeProfesoresParaEditar extends javax.swing.JFrame {
     FiltroDeTabla filtroDeTabla;
     private void jButtonObtenerProfesoresActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonObtenerProfesoresActionPerformed
         inicializarTabla();
-        filtroDeTabla = new FiltroDeTabla(jTable1, jTextField1);
     }//GEN-LAST:event_jButtonObtenerProfesoresActionPerformed
-
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        entityManager.getTransaction().begin();
-        entityManager.getTransaction().commit();
-    }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButtonCapturaFotoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCapturaFotoActionPerformed
         int x = jTable1.getSelectedRow();
@@ -302,12 +329,12 @@ public class ListaDeProfesoresParaEditar extends javax.swing.JFrame {
             return;
         }
         Integer idProfesor = Integer.parseInt(jTable1.getValueAt(x, 0).toString());
-        
+
         VirdiFingerPrintSensor sensor = new VirdiFingerPrintSensor();
         String huellaVirdi = sensor.capturaHuella(idProfesor);
         sensor.close();
-        
-        Profesor profesor = null;
+
+        Profesor profesor;
         profesor = em.find(Profesor.class, idProfesor);
 
         if (profesor != null) {
@@ -319,6 +346,43 @@ public class ListaDeProfesoresParaEditar extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(rootPane, "No existe el profesor con ese id");
         }
     }//GEN-LAST:event_jButtonCapturaHuella1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        int x = jTable1.getSelectedRow();
+        if (x == -1) {
+            JOptionPane.showMessageDialog(this, "Seleccione un profesor primero", "Datos incompletos",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        Integer idProfesor = Integer.parseInt(jTable1.getValueAt(x, 0).toString());
+        Profesor profesor;
+        profesor = em.find(Profesor.class, idProfesor);
+        String datos = ReflectionToStringBuilder.toString(profesor);
+        String[] pieces = datos.split(",");
+        pieces[0] = "";
+        datos = StringUtils.join(pieces, "<br>");
+        int response = JOptionPane.showConfirmDialog(null, "<html>Estas seguro de querer borrar a "
+                + "<b>" + profesor.getNombres() + " " + profesor.getApellidos() + "</b><br />"
+                + datos + "<html>", "Aceptar",
+                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+        if (response == JOptionPane.YES_OPTION) {
+
+            em.getTransaction().begin();
+            em.remove(profesor);
+            em.getTransaction().commit();
+            inicializarTabla();
+
+        }
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jTable1KeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTable1KeyTyped
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTable1KeyTyped
+
+    private void jTable1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTable1KeyPressed
+        // TODO add your handling code here:
+        System.out.println("a key have been pressed");
+    }//GEN-LAST:event_jTable1KeyPressed
 
     /**
      * @param args the command line arguments
@@ -336,15 +400,12 @@ public class ListaDeProfesoresParaEditar extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(ListaDeProfesoresParaEditar.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(ListaDeProfesoresParaEditar.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(ListaDeProfesoresParaEditar.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(ListaDeProfesoresParaEditar.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+
         //</editor-fold>
         //</editor-fold>
 
@@ -359,7 +420,7 @@ public class ListaDeProfesoresParaEditar extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.persistence.EntityManager entityManager;
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButtonCapturaFoto;
     private javax.swing.JButton jButtonCapturaHuella;
     private javax.swing.JButton jButtonCapturaHuella1;

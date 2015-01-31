@@ -29,6 +29,11 @@ public class Horarios extends javax.swing.JFrame {
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
         initComponents();
     }
+    Main parent;
+    Horarios(Main aThis) {
+        this();
+        parent = aThis;
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.

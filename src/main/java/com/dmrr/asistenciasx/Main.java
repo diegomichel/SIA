@@ -5,11 +5,6 @@
  */
 package com.dmrr.asistenciasx;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFrame;
 
 /**
@@ -17,10 +12,6 @@ import javax.swing.JFrame;
  * @author diego
  */
 public class Main extends javax.swing.JFrame {
-
-    /**
-     * Creates new form Herramientas
-     */
     
     public Main() {
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -31,16 +22,17 @@ public class Main extends javax.swing.JFrame {
         jTabbedPane1.insertTab("Inicio", null, m.getComponent(0), "Las opciones de inicio", 0);
         jTabbedPane1.setSelectedIndex(0);
 
-        ListaDeProfesoresParaEditar p = new ListaDeProfesoresParaEditar();
+        ListaDeProfesoresParaEditar p = new ListaDeProfesoresParaEditar(this);
         jTabbedPane1.addTab("Profesores", null, p.getComponent(0));
 
-        Horarios h = new Horarios();
+        Horarios h = new Horarios(this);
         jTabbedPane1.addTab("Horarios", null, h.getComponent(0));
 
-        Reportes reportes = new Reportes();
+        Reportes reportes = new Reportes(this);
         jTabbedPane1.addTab("Reportes y Asistencias", null, reportes.getComponent(0));
 
-        SIIAUConnector siiau = new SIIAUConnector();
+        SIIAUConnector siiau;
+        siiau = new SIIAUConnector(this);
         jTabbedPane1.addTab("SIIAU", null, siiau.getComponent(0));
     }
 
@@ -54,8 +46,14 @@ public class Main extends javax.swing.JFrame {
     private void initComponents() {
 
         jTabbedPane1 = new javax.swing.JTabbedPane();
+        jLabelEstado = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jLabelEstado.setBackground(new java.awt.Color(255, 255, 255));
+        jLabelEstado.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
+        jLabelEstado.setText("Bienvenido");
+        jLabelEstado.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -65,13 +63,15 @@ public class Main extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 853, Short.MAX_VALUE)
                 .addContainerGap())
+            .addComponent(jLabelEstado, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 520, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 501, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabelEstado))
         );
 
         pack();
@@ -116,6 +116,11 @@ public class Main extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel jLabelEstado;
     private javax.swing.JTabbedPane jTabbedPane1;
     // End of variables declaration//GEN-END:variables
+
+    void setEstado(String estado) {
+        jLabelEstado.setText(estado);
+    }
 }

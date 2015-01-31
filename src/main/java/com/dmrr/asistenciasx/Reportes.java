@@ -69,6 +69,11 @@ public class Reportes extends javax.swing.JFrame {
         jDateChooser.setDateFormatString("M-dd-yyyy");
         jDateChooser.setDate(new Date());
     }
+    Main parent;
+    Reportes(Main aThis) {
+        this();
+        parent = aThis;
+    }
 
     private void miFiltroAsistencias() {
         RowFilter rf = null;

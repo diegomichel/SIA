@@ -1,5 +1,3 @@
-CREATE DATABASE  IF NOT EXISTS `asistenciasx` /*!40100 DEFAULT CHARACTER SET utf8 */;
-USE `asistenciasx`;
 -- MySQL dump 10.13  Distrib 5.6.17, for Win32 (x86)
 --
 -- Host: localhost    Database: asistenciasx
@@ -76,7 +74,7 @@ CREATE TABLE `horario` (
   `idcurso` int(11) DEFAULT NULL,
   PRIMARY KEY (`idhorario`),
   KEY `idcurso_idx` (`idcurso`)
-) ENGINE=InnoDB AUTO_INCREMENT=776 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=818 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -185,7 +183,7 @@ CREATE TABLE `profesor_acceso` (
   `idprofesor` int(11) NOT NULL,
   `fechayhora` datetime NOT NULL,
   PRIMARY KEY (`idprofesor_acceso`)
-) ENGINE=InnoDB AUTO_INCREMENT=349 DEFAULT CHARSET=utf8 COMMENT='This a security table, in case the profesor does not have horario at the time or what ever, this will still record that he touched the sensor, for reference later.';
+) ENGINE=InnoDB AUTO_INCREMENT=381 DEFAULT CHARSET=utf8 COMMENT='This a security table, in case the profesor does not have horario at the time or what ever, this will still record that he touched the sensor, for reference later.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -290,4 +288,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2015-01-31  5:07:06
+-- Dump completed on 2015-01-31 17:35:52

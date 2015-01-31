@@ -14,7 +14,6 @@ import java.awt.Cursor;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -58,15 +57,20 @@ public class SIIAUConnector extends javax.swing.JFrame {
         em = javax.persistence.Persistence.createEntityManagerFactory("asistenciasx?zeroDateTimeBehavior=convertToNullPU").createEntityManager();
         Calendar cal = Calendar.getInstance();
         if (cal.get(Calendar.MONTH) + 1 <= 5) {
-            jTextFieldCiclo.setText(String.valueOf(cal.get(Calendar.YEAR)) + "10");
+            jTextFieldCiclo.setText(String.valueOf(cal.get(Calendar.YEAR)) + "A");
         } else {
-            jTextFieldCiclo.setText(String.valueOf(cal.get(Calendar.YEAR)) + "20");
+            jTextFieldCiclo.setText(String.valueOf(cal.get(Calendar.YEAR)) + "B");
         }
     }
 
     public SIIAUConnector(StartScreen aThis) {
         this();
         this.papa = aThis;
+    }
+    Main parent;
+    public SIIAUConnector(Main aThis) {
+        this();
+        parent = aThis;
     }
 
     /**
@@ -94,8 +98,6 @@ public class SIIAUConnector extends javax.swing.JFrame {
         jTextFieldProfesorId = new javax.swing.JTextField();
         jTextFieldCiclo = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jTextFieldCodigo = new javax.swing.JTextField();
@@ -198,10 +200,6 @@ public class SIIAUConnector extends javax.swing.JFrame {
 
         jLabel4.setText("Ciclo");
 
-        jLabel5.setText("10 para A");
-
-        jLabel6.setText("20 para B");
-
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -226,11 +224,7 @@ public class SIIAUConnector extends javax.swing.JFrame {
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(jLabel4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jLabel5)
-                                .addComponent(jLabel6))
-                            .addComponent(jTextFieldCiclo, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                        .addComponent(jTextFieldCiclo, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE))))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -246,11 +240,7 @@ public class SIIAUConnector extends javax.swing.JFrame {
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jTextFieldCiclo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel4))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel5)
-                .addGap(3, 3, 3)
-                .addComponent(jLabel6)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 48, Short.MAX_VALUE)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
@@ -408,14 +398,19 @@ public class SIIAUConnector extends javax.swing.JFrame {
 
     }//GEN-LAST:event_jButtonCarrerasActionPerformed
 
+    String getCicloEscolar() {
+        return jTextFieldCiclo.getText().toUpperCase().replace("A", "10").replace("B", "20");
+    }
+
     private void jButtonMaestrosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonMaestrosActionPerformed
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        
         Runnable hilo = new Runnable() {
             @Override
             public void run() {
                 try {
                     Document listaHorarios = Jsoup.connect("http://siiauescolar.siiau.udg.mx/wse/sspsecc.consulta_oferta")
-                            .data("ciclop", jTextFieldCiclo.getText(), "cup", "J", "deptop", "" + getCodigoDeDepartamento() + "", "ordenp", "0", "mostrarp", "1000", "tipop", "T", "secp", "A", "regp", "T")
+                            .data("ciclop", getCicloEscolar(), "cup", "J", "deptop", "" + getCodigoDeDepartamento() + "", "ordenp", "0", "mostrarp", "1000", "tipop", "T", "secp", "A", "regp", "T")
                             .userAgent("Mozilla")
                             .cookie(getFecha() + "SIIAUSESION", sessionId)
                             .cookie(getFecha() + "SIIAUUDG", sessionId2)
@@ -424,38 +419,42 @@ public class SIIAUConnector extends javax.swing.JFrame {
 
                     Elements maestrosTR = listaHorarios.select("body > table > tbody > tr").select("td:eq(10)");
                     List listaProfesores = new ArrayList();
-                    Profesor profesor;
+                    Profesor profesorDeSIIAU;
+                    Profesor profesorDeLaDB;
                     for (Element maestro : maestrosTR) {
                         Elements tablaMaestros = maestro.select("table > tbody > tr");
                         for (Element trMaestro : tablaMaestros) {
-                            profesor = new Profesor();
-                            profesor.setIdprofesor(Integer.parseInt(trMaestro.select("td:eq(1)").text()));
+                            profesorDeSIIAU = new Profesor();
+                            profesorDeSIIAU.setIdprofesor(Integer.parseInt(trMaestro.select("td:eq(1)").text()));
                             String[] splitName = trMaestro.select("td:eq(2)").text().split("-")[0].split(",");
-                            profesor.setNombres(splitName[1].trim());
-                            profesor.setApellidos(splitName[0].trim());
-                            if (listaProfesores.contains(profesor)) {
+                            profesorDeSIIAU.setNombres(splitName[1].trim());
+                            profesorDeSIIAU.setApellidos(splitName[0].trim());
+                            if (listaProfesores.contains(profesorDeSIIAU)) {
                                 continue;
                             }
 
-                            listaProfesores.add(profesor);
+                            listaProfesores.add(profesorDeSIIAU);
 
-                            tlog.append(profesor.getIdprofesor() + " - " + profesor.getNombres() + " " + profesor.getApellidos() + "\n");
+                            tlog.append(profesorDeSIIAU.getIdprofesor() + " - " + profesorDeSIIAU.getNombres() + " " + profesorDeSIIAU.getApellidos() + "\n");
                         }
                     }
                     String total = em.createNativeQuery("SELECT Count(*) from profesor").getSingleResult().toString();
 
-                    int response = JOptionPane.showConfirmDialog(null, "<html>Acepta que se borren <b>todos</b>(" + total + ") los profesores y se agreguen <b>" + listaProfesores.size() + "</b> profesores desde SIIAU</html>", "Aceptar",
+                    int response = JOptionPane.showConfirmDialog(null, "<html>Acepta que se actualicen(" + total + ") y agreguen <b>" + listaProfesores.size() + "</b> profesores desde SIIAU</html>", "Aceptar",
                             JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
                     if (response == JOptionPane.YES_OPTION) {
-
-                        em.getTransaction().begin();
-                        em.createNativeQuery("DELETE FROM profesor").executeUpdate();
-                        em.getTransaction().commit();
-
+                        
                         em.getTransaction().begin();
                         for (Object profesoro : listaProfesores) {
-                            profesor = (Profesor) profesoro;
-                            em.persist(profesor);
+                            profesorDeSIIAU = (Profesor) profesoro;
+                            profesorDeLaDB = em.find(Profesor.class, profesorDeSIIAU.getIdprofesor());
+                            if(profesorDeLaDB == null){
+                                em.persist(profesorDeSIIAU);
+                            }else{
+                                profesorDeLaDB.setApellidos(profesorDeSIIAU.getApellidos());
+                                profesorDeLaDB.setNombres(profesorDeSIIAU.getNombres());
+                                em.persist(profesorDeLaDB);
+                            }
                         }
                         em.getTransaction().commit();
                     }
@@ -476,7 +475,7 @@ public class SIIAUConnector extends javax.swing.JFrame {
                 try {
                     List listaMaterias = new ArrayList();
                     Document listaHorarios = Jsoup.connect("http://siiauescolar.siiau.udg.mx/wse/sspsecc.consulta_oferta")
-                            .data("ciclop", jTextFieldCiclo.getText(), "cup", "J", "deptop", "" + getCodigoDeDepartamento() + "", "ordenp", "0", "mostrarp", "1000", "tipop", "T", "secp", "A", "regp", "T")
+                            .data("ciclop", getCicloEscolar(), "cup", "J", "deptop", "" + getCodigoDeDepartamento() + "", "ordenp", "0", "mostrarp", "1000", "tipop", "T", "secp", "A", "regp", "T")
                             .userAgent("Mozilla")
                             .cookie(getFecha() + "SIIAUSESION", sessionId)
                             .cookie(getFecha() + "SIIAUUDG", sessionId2)
@@ -553,7 +552,7 @@ public class SIIAUConnector extends javax.swing.JFrame {
             public void run() {
                 try {
                     Document listaHorariosPage = Jsoup.connect("http://siiauescolar.siiau.udg.mx/wse/sspsecc.consulta_oferta")
-                            .data("ciclop", jTextFieldCiclo.getText(), "cup", "J", "deptop", "" + getCodigoDeDepartamento() + "", "ordenp", "0", "mostrarp", "1000", "tipop", "T", "secp", "A", "regp", "T")
+                            .data("ciclop", getCicloEscolar(), "cup", "J", "deptop", "" + getCodigoDeDepartamento() + "", "ordenp", "0", "mostrarp", "1000", "tipop", "T", "secp", "A", "regp", "T")
                             .userAgent("Mozilla")
                             .cookie(getFecha() + "SIIAUSESION", sessionId)
                             .cookie(getFecha() + "SIIAUUDG", sessionId2)
@@ -762,7 +761,7 @@ public class SIIAUConnector extends javax.swing.JFrame {
         try {
             int idProfesor = -1;
             Document listaHorarios = Jsoup.connect("http://siiauescolar.siiau.udg.mx/wse/sspsecc.consulta_oferta")
-                    .data("ciclop", jTextFieldCiclo.getText(), "cup", "J", "deptop", "", "ordenp", "0", "mostrarp", "1000", "tipop", "T", "secp", "A", "regp", "T", "codprofp", jTextFieldProfesorId.getText())
+                    .data("ciclop", getCicloEscolar(), "cup", "J", "deptop", "", "ordenp", "0", "mostrarp", "1000", "tipop", "T", "secp", "A", "regp", "T", "codprofp", jTextFieldProfesorId.getText())
                     .userAgent("Mozilla")
                     .cookie(getFecha() + "SIIAUSESION", sessionId)
                     .cookie(getFecha() + "SIIAUUDG", sessionId2)
@@ -1060,8 +1059,6 @@ public class SIIAUConnector extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
