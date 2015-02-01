@@ -7,6 +7,7 @@ package com.dmrr.asistenciasx;
 
 import bareMysqlTables.Profesor;
 import com.unioncomm.sdk.bsp.UCBioBSPJNI;
+import com.unioncomm.sdk.bsp.UCBioBSPJNI.FIR_HANDLE;
 import com.unioncomm.sdk.bsp.UCBioBSPJNI.FastSearch.FP_INFO;
 import com.unioncomm.sdk.bsp.UCBioBSPJNI.FastSearch.INIT_INFO;
 import com.unioncomm.sdk.bsp.UCBioBSPJNI.INPUT_FIR;
@@ -64,25 +65,10 @@ public final class VirdiFingerPrintSensor {
 
     public void inicializaLibreriaDelSensor() {
         bsp = new UCBioBSPJNI();
-
         if (bsp.IsErrorOccured()) {
             System.out.println(bsp.GetErrorCode());
             JOptionPane.showMessageDialog(null, "Virdi Sensor: " + bsp.GetErrorCode());
         }
-
-        /*UCBioBSPJNI.INIT_INFO_0 initInfo0 = bsp.new INIT_INFO_0();
-        bsp.GetInitInfo(initInfo0);
-        System.out.println("InitInfo :");
-        System.out.println(" MaxFingersForEnroll : " + initInfo0.MaxFingersForEnroll);
-        System.out.println(" NecessaryEnrollNum : " + initInfo0.NecessaryEnrollNum);
-        System.out.println(" SamplesPerFinger : " + initInfo0.SamplesPerFinger);
-        System.out.println(" DefaultTimeout : " + initInfo0.DefaultTimeout);
-        System.out.println(" SecurityLevelForEnroll : " + initInfo0.SecurityLevelForEnroll);
-        System.out.println(" SecurityLevelForVerify : " + initInfo0.SecurityLevelForVerify);
-        System.out.println(" SecurityLevelForIdentify : " + initInfo0.SecurityLevelForIdentify);
-        System.out.println("");
-
-        System.out.println("SDK version: " + bsp.GetVersion());*/
     }
 
     public String capturaHuella(Integer idProfesor) {
@@ -100,22 +86,30 @@ public final class VirdiFingerPrintSensor {
         } else {
             JOptionPane.showMessageDialog(null, "Error al capturar la huella, asegurese de tener conectado el sensor Virdi");
         }
+        hFIR.dispose();
+        
         return huella;
     }
 
     public void close() {
+        System.out.println("Liberando recursos virdi");
+        bsp.SetAutoDetect(0);
+        god = false;
         if (bsp != null) {
-            bsp.dispose();
+            //bsp.CloseDevice();
             bsp = null;
         }
+         System.out.println("shit");
     }
 
+    Boolean god = true;
+    
     public void esperaPorHuella(Component c, final JTextArea t, final ListaYCapturaDeAsistencias w) {
         final UCBioBSPJNI.WINDOW_OPTION winOption = bsp.new WINDOW_OPTION();
         winOption.WindowStyle = 1;
-        winOption.FingerWnd = c;
-        String jreBinPath = System.getProperty("java.home") + "\\bin";
-        winOption.JreBinPath = jreBinPath;
+        //winOption.FingerWnd = c;
+        //String jreBinPath = System.getProperty("java.home") + "\\bin";
+        //winOption.JreBinPath = jreBinPath;
 
         final ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
         Runnable waitForFinger = new Runnable() {
@@ -124,9 +118,11 @@ public final class VirdiFingerPrintSensor {
 
             @Override
             public void run() {
-                Boolean god = true;
+                
                 while (god) {
-                    int ret = bsp.Capture(0x01, hCapturedFIR, 0, null, winOption);
+                    //Si el sensor por alguna razon empieza a fallar aumentar el 3er parametro a algo mas alto, no dejar en 0 por que nunca se libera el sensor
+                    //  y falla al tratar de capturar las huellas de los maestros.
+                    int ret = bsp.Capture(0x01, hCapturedFIR, 5000, null, winOption);
                     if (ret == 0) {
                         INPUT_FIR inputFIR = bsp.new INPUT_FIR();
                         FP_INFO fpInfo = isEngine.new FP_INFO();
@@ -135,11 +131,6 @@ public final class VirdiFingerPrintSensor {
                         ret = isEngine.Identify(inputFIR, 5, fpInfo);
                         switch (ret) {
                             case 0:
-                                /*t.append("Profesor Identificado :");
-                                t.append("ID:" + fpInfo.ID);
-                                t.append(" Result FingerID : " + fpInfo.FingerID);
-                                t.append(" Result SampleNumber : " + fpInfo.SampleNumber);
-                                t.append("");*/
                                 w.fireAsistencia(fpInfo.ID);
                                 break;
                             case 1029:
@@ -154,6 +145,7 @@ public final class VirdiFingerPrintSensor {
                                 JOptionPane.showMessageDialog(t, "Error def" + ret);
                                 break;
                         }
+                        hCapturedFIR.dispose();
                     }
                 }
             }

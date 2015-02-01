@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.persistence.EntityManager;
@@ -68,6 +70,7 @@ public class SIIAUConnector extends javax.swing.JFrame {
         this.papa = aThis;
     }
     Main parent;
+
     public SIIAUConnector(Main aThis) {
         this();
         parent = aThis;
@@ -343,6 +346,9 @@ public class SIIAUConnector extends javax.swing.JFrame {
             @Override
             public void run() {
                 try {
+                    if (parent != null) {
+                        parent.setEstado("Descargando carreras");
+                    }
                     Document html = Jsoup.connect("http://siiauescolar.siiau.udg.mx/wse/sspsecc.lista_carreras?cup=J")
                             .userAgent("Mozilla")
                             .timeout(0)
@@ -367,6 +373,9 @@ public class SIIAUConnector extends javax.swing.JFrame {
                         carrera = new Carrera();
                         carrera.setIdcarrera(carreraHR.select("td:eq(0)").first().text());
                         carrera.setDescripcion(carreraHR.select("td:eq(1)").first().text());
+                        if (parent != null) {
+                            parent.setEstado("Descargada carrera: " + carrera.getDescripcion());
+                        }
                         listaCarreras.add(carrera);
                         tlog.append(carrera.getIdcarrera() + " - " + carrera.getDescripcion() + "\n");
                     }
@@ -392,6 +401,9 @@ public class SIIAUConnector extends javax.swing.JFrame {
                     Logger.getLogger(SIIAUConnector.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 tlog.append("Sincronizacion de carreras terminada.\n");
+                if (parent != null) {
+                    parent.setEstado("Sincronizacion de carreras terminada");
+                }
             }
         };
         SwingUtilities.invokeLater(hilo);
@@ -404,11 +416,16 @@ public class SIIAUConnector extends javax.swing.JFrame {
 
     private void jButtonMaestrosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonMaestrosActionPerformed
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        
-        Runnable hilo = new Runnable() {
+
+        final ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+        Runnable updateMaestros = new Runnable() {
             @Override
             public void run() {
                 try {
+                    jButtonMaestros.setEnabled(false);
+                    if (parent != null) {
+                        parent.setEstado("Descargando pagina de siiau...");
+                    }
                     Document listaHorarios = Jsoup.connect("http://siiauescolar.siiau.udg.mx/wse/sspsecc.consulta_oferta")
                             .data("ciclop", getCicloEscolar(), "cup", "J", "deptop", "" + getCodigoDeDepartamento() + "", "ordenp", "0", "mostrarp", "1000", "tipop", "T", "secp", "A", "regp", "T")
                             .userAgent("Mozilla")
@@ -417,6 +434,9 @@ public class SIIAUConnector extends javax.swing.JFrame {
                             .timeout(0)
                             .post();
 
+                    if (parent != null) {
+                        parent.setEstado("Datos descargados procesando...");
+                    }
                     Elements maestrosTR = listaHorarios.select("body > table > tbody > tr").select("td:eq(10)");
                     List listaProfesores = new ArrayList();
                     Profesor profesorDeSIIAU;
@@ -443,14 +463,14 @@ public class SIIAUConnector extends javax.swing.JFrame {
                     int response = JOptionPane.showConfirmDialog(null, "<html>Acepta que se actualicen(" + total + ") y agreguen <b>" + listaProfesores.size() + "</b> profesores desde SIIAU</html>", "Aceptar",
                             JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
                     if (response == JOptionPane.YES_OPTION) {
-                        
+
                         em.getTransaction().begin();
                         for (Object profesoro : listaProfesores) {
                             profesorDeSIIAU = (Profesor) profesoro;
                             profesorDeLaDB = em.find(Profesor.class, profesorDeSIIAU.getIdprofesor());
-                            if(profesorDeLaDB == null){
+                            if (profesorDeLaDB == null) {
                                 em.persist(profesorDeSIIAU);
-                            }else{
+                            } else {
                                 profesorDeLaDB.setApellidos(profesorDeSIIAU.getApellidos());
                                 profesorDeLaDB.setNombres(profesorDeSIIAU.getNombres());
                                 em.persist(profesorDeLaDB);
@@ -458,21 +478,31 @@ public class SIIAUConnector extends javax.swing.JFrame {
                         }
                         em.getTransaction().commit();
                     }
+                    jButtonMaestros.setEnabled(true);
                     tlog.append("Sincronizacion de profesores terminada.");
+                    setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                    if (parent != null) {
+                        parent.setEstado("Maestros actualizados!");
+                    }
                 } catch (IOException ex) {
                     Logger.getLogger(SIIAUConnector.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         };
-        SwingUtilities.invokeLater(hilo);
-        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        service.execute(updateMaestros);
+
     }//GEN-LAST:event_jButtonMaestrosActionPerformed
 
     private void jButtonMateriasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonMateriasActionPerformed
-        Runnable hilo = new Runnable() {
+        final ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+        Runnable sync = new Runnable() {
             @Override
             public void run() {
                 try {
+                    jButtonMaterias.setEnabled(false);
+                    if (parent != null) {
+                        parent.setEstado("Descargando materias... por favor espere.");
+                    }
                     List listaMaterias = new ArrayList();
                     Document listaHorarios = Jsoup.connect("http://siiauescolar.siiau.udg.mx/wse/sspsecc.consulta_oferta")
                             .data("ciclop", getCicloEscolar(), "cup", "J", "deptop", "" + getCodigoDeDepartamento() + "", "ordenp", "0", "mostrarp", "1000", "tipop", "T", "secp", "A", "regp", "T")
@@ -503,6 +533,9 @@ public class SIIAUConnector extends javax.swing.JFrame {
                                 .post();
                         materia = new Materia();
                         materia.setNombre(paginaDeLaMateria.select("th").first().text());
+                        if (parent != null) {
+                            parent.setEstado("Procesando materia:" + materia.getNombre());
+                        }
                         materia.setArea(paginaDeLaMateria.select("td:eq(1)").first().text());
                         materia.setIdmateria(paginaDeLaMateria.select("td:eq(3)").first().text());
                         materia.setCreditos(Integer.parseInt(paginaDeLaMateria.select("td:eq(5)").first().text()));
@@ -541,16 +574,21 @@ public class SIIAUConnector extends javax.swing.JFrame {
                 } catch (IOException ex) {
                     Logger.getLogger(SIIAUConnector.class.getName()).log(Level.SEVERE, null, ex);
                 }
+                parent.setEstado("Se han sincronizado las materias.");
+                jButtonMaterias.setEnabled(true);
             }
         };
-        SwingUtilities.invokeLater(hilo);
+        service.execute(sync);
     }//GEN-LAST:event_jButtonMateriasActionPerformed
 
     private void jButtonCursosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCursosActionPerformed
-        Runnable hilo = new Runnable() {
+        final ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+        Runnable updateCursos = new Runnable() {
             @Override
             public void run() {
                 try {
+                    jButtonCursos.setEnabled(false);
+                    parent.setEstado("Descargando cursos... por favor espere.");
                     Document listaHorariosPage = Jsoup.connect("http://siiauescolar.siiau.udg.mx/wse/sspsecc.consulta_oferta")
                             .data("ciclop", getCicloEscolar(), "cup", "J", "deptop", "" + getCodigoDeDepartamento() + "", "ordenp", "0", "mostrarp", "1000", "tipop", "T", "secp", "A", "regp", "T")
                             .userAgent("Mozilla")
@@ -580,6 +618,7 @@ public class SIIAUConnector extends javax.swing.JFrame {
 
                     em.getTransaction().begin();
                     Curso curso;
+                    parent.setEstado("Procesando cursos... por favor espere.");
                     for (Element cursoTR : cursosTR) {
                         curso = new Curso();
                         curso.setIdcurso(Integer.parseInt(cursoTR.select("td:eq(0)").first().text()));
@@ -666,99 +705,126 @@ public class SIIAUConnector extends javax.swing.JFrame {
                                 .cookie(getFecha() + "SIIAUUDG", sessionId2)
                                 .timeout(0)
                                 .post();
-                        System.out.println("http://siiauescolar.siiau.udg.mx/wse/" + NRClink.attr("href"));
+
                         Element tabla = paginaCurso.select("body > table > tbody > tr:last-child").first();
                         Element lastRow = tabla.select("table > tbody > tr:last-child").first();
 
                         if (null == lastRow) {
                             tlog.append("Curso: " + NRClink.text() + " Sin Alumnos\n");
-                            tlog.update(tlog.getGraphics());
                             continue;
                         } else { // THERE ARE SOME COURSES WITHOUT ALUMNI
                             tlog.append("Buscando id de carrera del curso\n");
-                            tlog.update(tlog.getGraphics());
                             curso.setIdcarrera(lastRow.select("td:eq(3)").text());
                         }
+                        parent.setEstado("Curso: " + curso.getIdcurso() + " procesado");
                         em.persist(curso);
                     }
                     em.getTransaction().commit();
+                    parent.setEstado("Se termino de sincronizar los cursos.");
+                    jButtonCursos.setEnabled(true);
+
+                } catch (IOException ex) {
+                    Logger.getLogger(SIIAUConnector.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+            }
+        };
+        service.execute(updateCursos);
+
+    }//GEN-LAST:event_jButtonCursosActionPerformed
+
+    private void jButtonLoginSIIAUActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonLoginSIIAUActionPerformed
+        final ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+        Runnable executeLater = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (jButtonLoginSIIAU.getText().equals("Desconectar")) {
+                        jButtonLoginSIIAU.setText("Conectar");
+                        jPanel3.setEnabled(true);
+                        jTextFieldCodigo.setEnabled(true);
+                        jPasswordFieldNIP.setEnabled(true);
+                        jLabel1.setEnabled(true);
+                        jLabel2.setEnabled(true);
+                        sessionId = "";
+                        sessionId2 = "";
+                        jButtonSincronizaProfesor.setEnabled(false);
+                        jTextFieldProfesorId.setEnabled(false);
+                        if (parent != null) {
+                            parent.setEstado("Desconectado..");
+                        }
+                        return;
+                    }
+                    if (parent != null) {
+                        parent.setEstado("Conectando... por favor espere.");
+                    }
+                    jButtonLoginSIIAU.setEnabled(false);
+
+                    org.jsoup.Connection.Response respuesta = Jsoup.connect("http://siiauescolar.siiau.udg.mx/wus/gupprincipal.valida_inicio")
+                            .data("p_codigo_c", jTextFieldCodigo.getText(), "p_clave_c", jPasswordFieldNIP.getText())
+                            .method(org.jsoup.Connection.Method.POST)
+                            .timeout(0)
+                            .execute();
+
+                    Document login = respuesta.parse();
+                    sessionId = respuesta.cookie(getFecha() + "SIIAUSESION");
+                    sessionId2 = respuesta.cookie(getFecha() + "SIIAUUDG");
+                    if (sessionId == null) {
+                        JOptionPane.showMessageDialog(rootPane, "Cheque que la fecha de su Sistema Operativo sea la correcta.");
+                        jButtonLoginSIIAU.setEnabled(true);
+                        return;
+                    }
+                    if (login.toString().contains("no son validos")) {
+                        JOptionPane.showMessageDialog(rootPane, "Datos de acceso incorrecto.");
+                        if (parent != null) {
+                            parent.setEstado("Datos de acceso incorrecto");
+                        }
+                    } else {
+                        jPanel3.setEnabled(false);
+                        jTextFieldCodigo.setEnabled(false);
+                        jPasswordFieldNIP.setEnabled(false);
+                        jLabel1.setEnabled(false);
+                        jLabel2.setEnabled(false);
+                        jButtonLoginSIIAU.setText("Desconectar");
+                        jButtonSincronizaProfesor.setEnabled(false);
+                        jTextFieldProfesorId.setEnabled(false);
+
+                        Document formaDeConsultaAcademica = Jsoup.connect("http://siiauescolar.siiau.udg.mx/wse/sspsecc.lista_deptos?cup=J")
+                                .userAgent("Mozilla")
+                                .cookie(getFecha() + "SIIAUSESION", sessionId)
+                                .cookie(getFecha() + "SIIAUUDG", sessionId2)
+                                .timeout(0)
+                                .post();
+
+                        Element firstTable = formaDeConsultaAcademica.select("body > table").first();
+                        Elements departamentosTRS = firstTable.select("tbody > tr");
+                        for (Element departamentoHR : departamentosTRS.subList(1, departamentosTRS.size())) {
+                            departamentos.put(departamentoHR.select("td:eq(1)").first().text(), departamentoHR.select("td:eq(0)").first().text());
+                            jComboBoxDepartamento.addItem(departamentoHR.select("td:eq(1)").first().text());
+                        }
+                        jComboBoxDepartamento.setEnabled(true);
+                        jButtonCarreras.setEnabled(true);
+                        jButtonCursos.setEnabled(true);
+                        jButtonMaestros.setEnabled(true);
+                        jButtonMaterias.setEnabled(true);
+                        jButtonSincronizaProfesor.setEnabled(true);
+                        jTextFieldProfesorId.setEnabled(true);
+                        if (parent != null) {
+                            parent.setEstado("Conectado a SIIAU con exito!");
+                        }
+                    }
+                    jButtonLoginSIIAU.setEnabled(true);
                 } catch (IOException ex) {
                     Logger.getLogger(SIIAUConnector.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         };
-        SwingUtilities.invokeLater(hilo);
-    }//GEN-LAST:event_jButtonCursosActionPerformed
-
-    private void jButtonLoginSIIAUActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonLoginSIIAUActionPerformed
-        try {
-            if (jButtonLoginSIIAU.getText().equals("Desconectar")) {
-                jButtonLoginSIIAU.setText("Conectar");
-                jPanel3.setEnabled(true);
-                jTextFieldCodigo.setEnabled(true);
-                jPasswordFieldNIP.setEnabled(true);
-                jLabel1.setEnabled(true);
-                jLabel2.setEnabled(true);
-                sessionId = "";
-                sessionId2 = "";
-                jButtonSincronizaProfesor.setEnabled(false);
-                jTextFieldProfesorId.setEnabled(false);
-                return;
-            }
-
-            org.jsoup.Connection.Response respuesta = Jsoup.connect("http://siiauescolar.siiau.udg.mx/wus/gupprincipal.valida_inicio")
-                    .data("p_codigo_c", jTextFieldCodigo.getText(), "p_clave_c", jPasswordFieldNIP.getText())
-                    .method(org.jsoup.Connection.Method.POST)
-                    .timeout(0)
-                    .execute();
-
-            Document login = respuesta.parse();
-            sessionId = respuesta.cookie(getFecha() + "SIIAUSESION");
-            sessionId2 = respuesta.cookie(getFecha() + "SIIAUUDG");
-            if (sessionId == null) {
-                JOptionPane.showMessageDialog(rootPane, "Cheque que la fecha de su Sistema Operativo sea la correcta.");
-                return;
-            }
-            if (login.toString().contains("no son validos")) {
-                JOptionPane.showMessageDialog(rootPane, "Datos de acceso incorrecto.");
-            } else {
-                jPanel3.setEnabled(false);
-                jTextFieldCodigo.setEnabled(false);
-                jPasswordFieldNIP.setEnabled(false);
-                jLabel1.setEnabled(false);
-                jLabel2.setEnabled(false);
-                jButtonLoginSIIAU.setText("Desconectar");
-                jButtonSincronizaProfesor.setEnabled(false);
-                jTextFieldProfesorId.setEnabled(false);
-
-                Document formaDeConsultaAcademica = Jsoup.connect("http://siiauescolar.siiau.udg.mx/wse/sspsecc.lista_deptos?cup=J")
-                        .userAgent("Mozilla")
-                        .cookie(getFecha() + "SIIAUSESION", sessionId)
-                        .cookie(getFecha() + "SIIAUUDG", sessionId2)
-                        .timeout(0)
-                        .post();
-
-                Element firstTable = formaDeConsultaAcademica.select("body > table").first();
-                Elements departamentosTRS = firstTable.select("tbody > tr");
-                for (Element departamentoHR : departamentosTRS.subList(1, departamentosTRS.size())) {
-                    departamentos.put(departamentoHR.select("td:eq(1)").first().text(), departamentoHR.select("td:eq(0)").first().text());
-                    jComboBoxDepartamento.addItem(departamentoHR.select("td:eq(1)").first().text());
-                }
-                jComboBoxDepartamento.setEnabled(true);
-                jButtonCarreras.setEnabled(true);
-                jButtonCursos.setEnabled(true);
-                jButtonMaestros.setEnabled(true);
-                jButtonMaterias.setEnabled(true);
-                jButtonSincronizaProfesor.setEnabled(true);
-                jTextFieldProfesorId.setEnabled(true);
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(SIIAUConnector.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        service.execute(executeLater);
     }//GEN-LAST:event_jButtonLoginSIIAUActionPerformed
 
     private void jButtonSincronizaProfesorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSincronizaProfesorActionPerformed
         try {
+
             int idProfesor = -1;
             Document listaHorarios = Jsoup.connect("http://siiauescolar.siiau.udg.mx/wse/sspsecc.consulta_oferta")
                     .data("ciclop", getCicloEscolar(), "cup", "J", "deptop", "", "ordenp", "0", "mostrarp", "1000", "tipop", "T", "secp", "A", "regp", "T", "codprofp", jTextFieldProfesorId.getText())
@@ -961,7 +1027,6 @@ public class SIIAUConnector extends javax.swing.JFrame {
                 em.persist(curso);
                 em.getTransaction().commit();
             }
-
         } catch (IOException ex) {
             Logger.getLogger(SIIAUConnector.class.getName()).log(Level.SEVERE, null, ex);
         }

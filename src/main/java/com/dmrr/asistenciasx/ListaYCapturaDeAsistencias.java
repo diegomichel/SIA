@@ -56,6 +56,7 @@ public final class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
     private List<Map> listaDeRegistros;
     JLabel jLabelHuellaNoReconocida;
     Query profesorQuery;
+    VirdiFingerPrintSensor sensor;
 
     Configuracion c = new Configuracion();
 
@@ -97,6 +98,7 @@ public final class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
                 }
                 parent.parent.setVisible(true);
                 setVisible(false);
+                sensor.close();
                 dispose();
             }
         };
@@ -454,8 +456,8 @@ public final class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
         this.getRootPane().getActionMap().put("enterlol", numpadAction);
     }
 
-    private void loginViaVirdi() {
-        VirdiFingerPrintSensor sensor = new VirdiFingerPrintSensor();
+    void loginViaVirdi() {
+        sensor = new VirdiFingerPrintSensor();
         sensor.preparaEngine(profesorList);
         sensor.esperaPorHuella(canvas, jTextArea1, this);
     }

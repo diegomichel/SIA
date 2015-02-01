@@ -48,8 +48,7 @@ public class StartScreen extends javax.swing.JFrame {
     }
 
     public StartScreen(Main aThis) {
-        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        initComponents();
+        this();
         this.parent = aThis;
     }
 
@@ -225,7 +224,12 @@ public class StartScreen extends javax.swing.JFrame {
         if (listaYCapturaDeAsistencias == null) {
             listaYCapturaDeAsistencias = new ListaYCapturaDeAsistencias(this);
         } else {
-            listaYCapturaDeAsistencias.monitorDeHuella.lectorDeHuella.startCapture();
+            if(c.get("digitalpersona")){
+                listaYCapturaDeAsistencias.monitorDeHuella.lectorDeHuella.startCapture();
+            }
+            if(c.get("virdi")){
+                listaYCapturaDeAsistencias.loginViaVirdi();
+            }
             listaYCapturaDeAsistencias.refreshListaDeProfesores();
         }
         listaYCapturaDeAsistencias.setVisible(true);
