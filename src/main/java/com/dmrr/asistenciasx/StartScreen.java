@@ -225,11 +225,13 @@ public class StartScreen extends javax.swing.JFrame {
             listaYCapturaDeAsistencias = new ListaYCapturaDeAsistencias(this);
         } else {
             if(c.get("digitalpersona")){
+                listaYCapturaDeAsistencias.refreshListaDeProfesores();
                 listaYCapturaDeAsistencias.monitorDeHuella.lectorDeHuella.startCapture();
             }
             if(c.get("virdi")){
+                listaYCapturaDeAsistencias.refreshListaDeProfesores();
                 listaYCapturaDeAsistencias.loginViaVirdi();
-            }
+           }
             listaYCapturaDeAsistencias.refreshListaDeProfesores();
         }
         listaYCapturaDeAsistencias.setVisible(true);

@@ -5,16 +5,39 @@
  */
 package com.dmrr.asistenciasx;
 
+import au.com.bytecode.opencsv.CSVReader;
+import static com.dmrr.asistenciasx.SIIAUConnector.getFecha;
+import java.awt.Dimension;
+import java.io.ByteArrayInputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.text.html.HTMLEditorKit;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.eclipse.persistence.config.QueryHints;
 import org.eclipse.persistence.config.ResultType;
 import org.jdesktop.beansbinding.AutoBinding;
 import org.jdesktop.beansbinding.ELProperty;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Attributes;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 /**
  *
@@ -30,6 +53,7 @@ public class Horarios extends javax.swing.JFrame {
         initComponents();
     }
     Main parent;
+
     Horarios(Main aThis) {
         this();
         parent = aThis;
@@ -49,6 +73,7 @@ public class Horarios extends javax.swing.JFrame {
         jButtonReasignar = new javax.swing.JButton();
         jButtonObtener = new javax.swing.JButton();
         jTextFieldFiltro = new javax.swing.JTextField();
+        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -79,6 +104,13 @@ public class Horarios extends javax.swing.JFrame {
             }
         });
 
+        jButton1.setText("Horarios de profesor en SIIAU");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -89,6 +121,8 @@ public class Horarios extends javax.swing.JFrame {
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 691, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jButton1)
+                        .addGap(18, 18, 18)
                         .addComponent(jButtonReasignar))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(jTextFieldFiltro, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -106,7 +140,9 @@ public class Horarios extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE)
                 .addGap(9, 9, 9)
-                .addComponent(jButtonReasignar)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButtonReasignar)
+                    .addComponent(jButton1))
                 .addContainerGap())
         );
 
@@ -119,11 +155,79 @@ public class Horarios extends javax.swing.JFrame {
     }//GEN-LAST:event_jButtonObtenerActionPerformed
     HorariosReasignarPantallaListaDeProfesores ventanaReasignarCurso;
     private void jButtonReasignarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonReasignarActionPerformed
+        int x = jTableHorarios.getSelectedRow();
+        if (x == -1) {
+            JOptionPane.showMessageDialog(this, "Seleccione un profesor primero", "Datos incompletos",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
         Integer idCurso = Integer.parseInt((String) jTableHorarios.getValueAt(jTableHorarios.getSelectedRow(), 0));
         String nombreProfesor = (String) jTableHorarios.getValueAt(jTableHorarios.getSelectedRow(), 2);
         ventanaReasignarCurso = new HorariosReasignarPantallaListaDeProfesores(idCurso, nombreProfesor, this);
         ventanaReasignarCurso.setVisible(true);
     }//GEN-LAST:event_jButtonReasignarActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        try {
+            int x = jTableHorarios.getSelectedRow();
+            if (x == -1) {
+                JOptionPane.showMessageDialog(this, "Seleccione un profesor primero", "Datos incompletos",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            Integer idProfesor = Integer.parseInt((String) jTableHorarios.getValueAt(jTableHorarios.getSelectedRow(), 1));
+            
+            JPasswordField pf = new JPasswordField();
+            String nip = "";
+            int okCxl = JOptionPane.showConfirmDialog(null, pf, "Introduzca el NIP del jefe del departamento", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+            if (okCxl == JOptionPane.OK_OPTION) {
+                nip = new String(pf.getPassword());
+            }else{
+                return;
+            }
+            
+            org.jsoup.Connection.Response respuesta = Jsoup.connect("http://siiauescolar.siiau.udg.mx/wus/gupprincipal.valida_inicio")
+                    .data("p_codigo_c", "2225255", "p_clave_c", nip)
+                    .method(org.jsoup.Connection.Method.POST)
+                    .timeout(0)
+                    .execute();
+
+            Document login = respuesta.parse();
+            String sessionId = respuesta.cookie(getFecha() + "SIIAUSESION");
+            String sessionId2 = respuesta.cookie(getFecha() + "SIIAUUDG");
+
+            Document listaHorarios = Jsoup.connect("http://siiauescolar.siiau.udg.mx/wse/sspsecc.consulta_oferta")
+                    .data("ciclop", "201510", "cup", "J", "deptop", "", "codprofp", "" + idProfesor, "ordenp", "0", "mostrarp", "1000", "tipop", "T", "secp", "A", "regp", "T")
+                    .userAgent("Mozilla")
+                    .cookie(getFecha() + "SIIAUSESION", sessionId)
+                    .cookie(getFecha() + "SIIAUUDG", sessionId2)
+                    .timeout(0)
+                    .post();
+
+            Elements tabla = listaHorarios.select("body");
+            tabla.select("style").remove();
+            Elements font = tabla.select("font");
+            font.removeAttr("size");
+
+            System.out.println(tabla.html());
+
+            JEditorPane jEditorPane = new JEditorPane();
+            jEditorPane.setEditable(false);
+
+            HTMLEditorKit kit = new HTMLEditorKit();
+            jEditorPane.setEditorKit(kit);
+
+            javax.swing.text.Document doc = kit.createDefaultDocument();
+            jEditorPane.setDocument(doc);
+            jEditorPane.setText(tabla.html());
+
+            JOptionPane.showMessageDialog(null, jEditorPane);
+
+        } catch (IOException ex) {
+            Logger.getLogger(Horarios.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -162,6 +266,7 @@ public class Horarios extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButtonObtener;
     private javax.swing.JButton jButtonReasignar;
     private javax.swing.JScrollPane jScrollPane1;
@@ -185,10 +290,9 @@ public class Horarios extends javax.swing.JFrame {
         registrosQuery.setHint(QueryHints.RESULT_TYPE, ResultType.Map);
         listaDeRegistros = registrosQuery.getResultList();
 
-
         JTableBinding jTableBinding;
         jTableBinding = SwingBindings.createJTableBinding(AutoBinding.UpdateStrategy.READ, listaDeRegistros, jTableHorarios);
-        
+
         JTableBinding.ColumnBinding columnBinding = jTableBinding.addColumnBinding(ELProperty.create("${idcurso}"));
         columnBinding.setColumnName("NRC");
         columnBinding.setColumnClass(String.class);
@@ -204,35 +308,35 @@ public class Horarios extends javax.swing.JFrame {
         columnBinding = jTableBinding.addColumnBinding(ELProperty.create("${Materia}"));
         columnBinding.setColumnName("Materia");
         columnBinding.setColumnClass(String.class);
-        
+
         columnBinding = jTableBinding.addColumnBinding(ELProperty.create("${horaEntrada}"));
         columnBinding.setColumnName("Entrada");
         columnBinding.setColumnClass(String.class);
-        
+
         columnBinding = jTableBinding.addColumnBinding(ELProperty.create("${horaSalida}"));
         columnBinding.setColumnName("Salida");
         columnBinding.setColumnClass(String.class);
-        
+
         columnBinding = jTableBinding.addColumnBinding(ELProperty.create("${lun}"));
         columnBinding.setColumnName("L");
         columnBinding.setColumnClass(Boolean.class);
-        
+
         columnBinding = jTableBinding.addColumnBinding(ELProperty.create("${mar}"));
         columnBinding.setColumnName("M");
         columnBinding.setColumnClass(Boolean.class);
-        
+
         columnBinding = jTableBinding.addColumnBinding(ELProperty.create("${mie}"));
         columnBinding.setColumnName("M");
         columnBinding.setColumnClass(Boolean.class);
-        
+
         columnBinding = jTableBinding.addColumnBinding(ELProperty.create("${jue}"));
         columnBinding.setColumnName("J");
         columnBinding.setColumnClass(Boolean.class);
-        
+
         columnBinding = jTableBinding.addColumnBinding(ELProperty.create("${vie}"));
         columnBinding.setColumnName("V");
         columnBinding.setColumnClass(Boolean.class);
-        
+
         columnBinding = jTableBinding.addColumnBinding(ELProperty.create("${sab}"));
         columnBinding.setColumnName("S");
         columnBinding.setColumnClass(Boolean.class);
@@ -243,7 +347,7 @@ public class Horarios extends javax.swing.JFrame {
         jTableHorarios.getColumnModel().getColumn(0).setPreferredWidth(150);
 
         jTableHorarios.getColumnModel().getColumn(2).setPreferredWidth(250);
-        
+
         jTableHorarios.getColumnModel().getColumn(3).setPreferredWidth(350);
     }
 }

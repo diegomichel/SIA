@@ -9,6 +9,8 @@ import bareMysqlTables.Profesor;
 import bareMysqlTables.ProfesorAcceso;
 import bareMysqlTables.Registro;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -24,6 +26,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JTable;
 import static javax.swing.JTable.AUTO_RESIZE_OFF;
 import static javax.swing.JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -99,7 +102,7 @@ public final class VentanaDeAsistenciaDeProfesor extends javax.swing.JFrame {
         jLabelHoraDeEntrada.setText("");
         jLabelNombreDeMateria.setText("");
         jLabelSalon.setText("");
-        
+
         loadFoto(profesor);
         cargaHorariosEnJTable();
         checaHoraDeEntrada();
@@ -200,7 +203,11 @@ public final class VentanaDeAsistenciaDeProfesor extends javax.swing.JFrame {
 
         DefaultTableCellRenderer cellRendererForToday = new DefaultTableCellRenderer();
         cellRendererForToday.setBorder(BorderFactory.createLineBorder(Color.yellow, 5));
-        cellRendererForToday.setForeground(Color.red);
+        cellRendererForToday.setForeground(Color.black);
+        cellRendererForToday.setHorizontalAlignment(JLabel.CENTER);
+        cellRendererForToday.setBackground(Color.gray);
+
+        cellRendererForToday = new CustomRenderer();
         cellRendererForToday.setHorizontalAlignment(JLabel.CENTER);
 
         for (int i = 2; i < 8; i++) {
@@ -208,8 +215,24 @@ public final class VentanaDeAsistenciaDeProfesor extends javax.swing.JFrame {
             jTable3.getColumnModel().getColumn(i).setHeaderRenderer(centerRendererForHeaders);
             if (i + 2 == MyUtils.getDayOfWeek() + 2) {
                 jTable3.getColumnModel().getColumn(i).setCellRenderer(cellRendererForToday);
-                jTable3.getColumnModel().getColumn(i).setHeaderRenderer(cellRendererForToday);
             }
+        }
+    }
+
+    class CustomRenderer extends DefaultTableCellRenderer {
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            Component cellComponent = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+            if (row % 2 == 0) {
+                cellComponent.setBackground(new Color(255, 255, 255));
+            } else if (row % 2 == 1) {
+                cellComponent.setBackground(new Color(245, 245, 245));
+                
+            }
+            cellComponent.setFont(new Font("VERDANA", Font.BOLD, 14));
+            return cellComponent;
         }
     }
 
@@ -549,7 +572,6 @@ public final class VentanaDeAsistenciaDeProfesor extends javax.swing.JFrame {
             fechayhora = dateTime.toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:00:00"));
         }
 
-        
         //String fechayhora = dateTime.toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:00:00"));
         Query yaSeRegistro = em.createNativeQuery("SELECT * FROM registrodeasistencias WHERE idprofesor = " + profesor.getIdprofesor() + " AND fechayhora BETWEEN '" + fechayhora + "' - INTERVAL 15 MINUTE AND '" + fechayhora + "' + INTERVAL 15 MINUTE");
         System.out.println(yaSeRegistro.toString());

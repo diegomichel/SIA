@@ -210,4 +210,6 @@
 /reportesDeHorarios/DUBE_DOC. EN CS. EN BIOSISTEMATICA_Sábado.csv
 /reportesDeHorarios/PMU_PROF.MEDIO EN MUSICA_Miércoles.csv
 /reportesDeHorarios/PCI_LIC ING DE PROC Y COMER INTER_Jueves.csv
+/reportesDeHorarios/*.*
+/reportes/*.*
 *.log

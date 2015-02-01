@@ -56,7 +56,7 @@ public final class VirdiFingerPrintSensor {
             JOptionPane.showMessageDialog(null, "Virdi Sensor: No Conectado");
         }
         err = bsp.OpenDevice();
-        if(err != 0){
+        if (err != 0) {
             JOptionPane.showMessageDialog(null, "Asegurese de que el sensor este correctamente instalado y vuelva a intenarlo");
             return;
         }
@@ -72,7 +72,9 @@ public final class VirdiFingerPrintSensor {
     }
 
     public String capturaHuella(Integer idProfesor) {
-        if(err != 0) return "";
+        if (err != 0) {
+            return "";
+        }
         UCBioBSPJNI.FIR_HANDLE hFIR = bsp.new FIR_HANDLE();
         UCBioBSPJNI.FIR_TEXTENCODE textFir = bsp.new FIR_TEXTENCODE();
 
@@ -87,7 +89,7 @@ public final class VirdiFingerPrintSensor {
             JOptionPane.showMessageDialog(null, "Error al capturar la huella, asegurese de tener conectado el sensor Virdi");
         }
         hFIR.dispose();
-        
+
         return huella;
     }
 
@@ -99,11 +101,10 @@ public final class VirdiFingerPrintSensor {
             //bsp.CloseDevice();
             bsp = null;
         }
-         System.out.println("shit");
     }
 
     Boolean god = true;
-    
+
     public void esperaPorHuella(Component c, final JTextArea t, final ListaYCapturaDeAsistencias w) {
         final UCBioBSPJNI.WINDOW_OPTION winOption = bsp.new WINDOW_OPTION();
         winOption.WindowStyle = 1;
@@ -118,7 +119,6 @@ public final class VirdiFingerPrintSensor {
 
             @Override
             public void run() {
-                
                 while (god) {
                     //Si el sensor por alguna razon empieza a fallar aumentar el 3er parametro a algo mas alto, no dejar en 0 por que nunca se libera el sensor
                     //  y falla al tratar de capturar las huellas de los maestros.
@@ -134,6 +134,9 @@ public final class VirdiFingerPrintSensor {
                                 w.fireAsistencia(fpInfo.ID);
                                 break;
                             case 1029:
+                                w.fireHuellaNoReconocida();
+                                break;
+                            case 1023:
                                 w.fireHuellaNoReconocida();
                                 break;
                             case 10:
