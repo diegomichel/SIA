@@ -221,20 +221,7 @@ public class StartScreen extends javax.swing.JFrame {
             return;
         }
         listaYCapturaDeAsistencias = null;
-        if (listaYCapturaDeAsistencias == null) {
-            listaYCapturaDeAsistencias = new ListaYCapturaDeAsistencias(this);
-        } else {
-            System.out.println("this should never happend...");
-            if(c.get("digitalpersona")){
-                listaYCapturaDeAsistencias.refreshListaDeProfesores();
-                listaYCapturaDeAsistencias.monitorDeHuella.lectorDeHuella.startCapture();
-            }
-            if(c.get("virdi")){
-                listaYCapturaDeAsistencias.refreshListaDeProfesores();
-                listaYCapturaDeAsistencias.loginViaVirdi();
-           }
-            listaYCapturaDeAsistencias.refreshListaDeProfesores();
-        }
+        listaYCapturaDeAsistencias = new ListaYCapturaDeAsistencias(this);
         listaYCapturaDeAsistencias.setVisible(true);
 
         if (parent == null) {
