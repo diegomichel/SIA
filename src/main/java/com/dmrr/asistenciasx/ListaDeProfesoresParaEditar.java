@@ -329,10 +329,14 @@ public class ListaDeProfesoresParaEditar extends javax.swing.JFrame {
             return;
         }
         Integer idProfesor = Integer.parseInt(jTable1.getValueAt(x, 0).toString());
-
+        String huellaVirdi;
         VirdiFingerPrintSensor sensor = new VirdiFingerPrintSensor();
-        String huellaVirdi = sensor.capturaHuella(idProfesor);
-        sensor.close();
+        if (sensor.inicializaSensor()) {
+            huellaVirdi = sensor.capturaHuella(idProfesor);
+            sensor.close();
+        }else{
+            return;
+        }
 
         Profesor profesor;
         profesor = em.find(Profesor.class, idProfesor);

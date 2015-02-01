@@ -98,7 +98,12 @@ public final class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
                 }
                 parent.parent.setVisible(true);
                 setVisible(false);
-                sensor.close();
+                if (sensor != null) {
+                    sensor.shutdown = true;
+                    while(sensor.capturing){
+                        System.out.println("esperando a que el sensor termine...");
+                    }
+                }
                 dispose();
             }
         };
@@ -396,6 +401,7 @@ public final class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
                     Boolean teacherFound = false;
                     for (Iterator it = profesorList.iterator(); it.hasNext();) {
                         Profesor profesor = (Profesor) it.next();
+                        try{
                         if (profesor.getIdprofesor().equals(Integer.parseInt(jLabelCodigoProfesor.getText()))) {
                             jTextArea1.append("El profesor: " + profesor.getNombres() + " puso su dedo en el sensor\n");
                             ventanaDeProfesor.llenaVentanaDeDatos(profesor);
@@ -403,6 +409,8 @@ public final class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
                             setTablaDeRegistrosBackAfterSomeTime();
                             teacherFound = true;
                             break;
+                        }}catch(NumberFormatException ee){
+                            jLabelCodigoProfesor.setText("");
                         }
                     }
                     if (!teacherFound) {
@@ -458,8 +466,10 @@ public final class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
 
     void loginViaVirdi() {
         sensor = new VirdiFingerPrintSensor();
-        sensor.preparaEngine(profesorList);
-        sensor.esperaPorHuella(canvas, jTextArea1, this);
+        if (sensor.inicializaSensor()) {
+            sensor.preparaEngine(profesorList);
+            sensor.esperaPorHuella(canvas, jTextArea1, this);
+        }
     }
 
     void fireAsistencia(Integer profesorID) {

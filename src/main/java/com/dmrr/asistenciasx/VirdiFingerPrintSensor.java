@@ -30,14 +30,13 @@ public final class VirdiFingerPrintSensor {
     String huella = "";
     UCBioBSPJNI.FastSearch isEngine;
     Integer err;
+    boolean shutdown;
 
     public VirdiFingerPrintSensor() {
         inicializaLibreriaDelSensor();
-        inicializaSensor();
-
     }
 
-    private void inicializaSensor() {
+    public boolean inicializaSensor() {
         UCBioBSPJNI.DEVICE_ENUM_INFO device_enum_info = bsp.new DEVICE_ENUM_INFO();
         int SetSkinResource = bsp.SetSkinResource("UCBioBSPSkin_Spanish.dll");
         if (SetSkinResource == 1) {
@@ -58,9 +57,10 @@ public final class VirdiFingerPrintSensor {
         err = bsp.OpenDevice();
         if (err != 0) {
             JOptionPane.showMessageDialog(null, "Asegurese de que el sensor este correctamente instalado y vuelva a intenarlo");
-            return;
+            return false;
         }
         bsp.SetAutoDetect(1);
+        return true;
     }
 
     public void inicializaLibreriaDelSensor() {
@@ -96,14 +96,13 @@ public final class VirdiFingerPrintSensor {
     public void close() {
         System.out.println("Liberando recursos virdi");
         bsp.SetAutoDetect(0);
-        god = false;
         if (bsp != null) {
-            //bsp.CloseDevice();
+            bsp.CloseDevice();
             bsp = null;
         }
     }
 
-    Boolean god = true;
+    Boolean capturing = true;
 
     public void esperaPorHuella(Component c, final JTextArea t, final ListaYCapturaDeAsistencias w) {
         final UCBioBSPJNI.WINDOW_OPTION winOption = bsp.new WINDOW_OPTION();
@@ -119,7 +118,7 @@ public final class VirdiFingerPrintSensor {
 
             @Override
             public void run() {
-                while (god) {
+                while (capturing && !shutdown) {
                     //Si el sensor por alguna razon empieza a fallar aumentar el 3er parametro a algo mas alto, no dejar en 0 por que nunca se libera el sensor
                     //  y falla al tratar de capturar las huellas de los maestros.
                     int ret = bsp.Capture(0x01, hCapturedFIR, 5000, null, winOption);
@@ -143,7 +142,7 @@ public final class VirdiFingerPrintSensor {
                                 JOptionPane.showMessageDialog(t, "Conecte su sensor VIRDI y abra de nuevo el programa");
                                 w.dispose();
                                 System.exit(0);
-                                god = false;
+                                capturing = false;
                             default:
                                 JOptionPane.showMessageDialog(t, "Error def" + ret);
                                 break;
@@ -151,6 +150,8 @@ public final class VirdiFingerPrintSensor {
                         hCapturedFIR.dispose();
                     }
                 }
+                capturing = false;
+                System.out.println("Se salio del loop ahora puede salir...");
             }
         };
         service.execute(waitForFinger);

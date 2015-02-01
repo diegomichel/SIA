@@ -220,10 +220,11 @@ public class StartScreen extends javax.swing.JFrame {
             jLabelError.setText("Seleccione por lo menos una opcion para registrar las asistencias.");
             return;
         }
-        
+        listaYCapturaDeAsistencias = null;
         if (listaYCapturaDeAsistencias == null) {
             listaYCapturaDeAsistencias = new ListaYCapturaDeAsistencias(this);
         } else {
+            System.out.println("this should never happend...");
             if(c.get("digitalpersona")){
                 listaYCapturaDeAsistencias.refreshListaDeProfesores();
                 listaYCapturaDeAsistencias.monitorDeHuella.lectorDeHuella.startCapture();
