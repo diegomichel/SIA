@@ -139,10 +139,8 @@ public final class VirdiFingerPrintSensor {
                                 w.fireHuellaNoReconocida();
                                 break;
                             case 10:
-                                JOptionPane.showMessageDialog(t, "Conecte su sensor VIRDI y abra de nuevo el programa");
-                                w.dispose();
-                                System.exit(0);
-                                capturing = false;
+                                System.out.println("e:10 Conecte su sensor VIRDI y abra de nuevo el programa");
+                                break;
                             default:
                                 JOptionPane.showMessageDialog(t, "Error def" + ret);
                                 break;

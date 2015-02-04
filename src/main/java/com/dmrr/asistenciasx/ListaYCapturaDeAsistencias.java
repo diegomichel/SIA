@@ -108,8 +108,9 @@ public final class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
                 setVisible(false);
                 if (sensor != null) {
                     sensor.shutdown = true;
+                    System.out.println("esperando a que el sensor termine...");
                     while (sensor.capturing) {
-                        System.out.println("esperando a que el sensor termine...");
+                        //System.out.println("esperando a que el sensor termine...");
                     }
                 }
                 dispose();
