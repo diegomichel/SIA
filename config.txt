@@ -1,5 +1,5 @@
 #
-#Sun Feb 01 11:58:43 CST 2015
+#Tue Feb 03 21:02:53 CST 2015
 teclado=true
 digitalpersona=true
-virdi=true
+virdi=false

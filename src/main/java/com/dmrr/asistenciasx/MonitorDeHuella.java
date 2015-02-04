@@ -33,7 +33,7 @@ import javax.swing.SwingUtilities;
  */
 public final class MonitorDeHuella extends javax.swing.JFrame implements Runnable {
 
-    DPFPCapture lectorDeHuella = DPFPGlobal.getCaptureFactory().createCapture();
+    DPFPCapture lectorDeHuella;
     DPFPEnrollment reclutadorDeHuella = DPFPGlobal.getEnrollmentFactory().createEnrollment();
     DPFPVerification Verificador = DPFPGlobal.getVerificationFactory().createVerification();
     DPFPTemplate template;
@@ -44,14 +44,13 @@ public final class MonitorDeHuella extends javax.swing.JFrame implements Runnabl
 
     public MonitorDeHuella(JTextArea logTextArea) {
         this.logTextArea = logTextArea;
+        lectorDeHuella = DPFPGlobal.getCaptureFactory().createCapture();
         iniciarListenersDelLector();
         start();
     }
     public MonitorDeHuella(JTextArea logTextArea, ListaYCapturaDeAsistencias listaYCapturaDeAsistencias){
-        this.logTextArea = logTextArea;
+        this(logTextArea);
         this.listaYCapturaDeAsistencias = listaYCapturaDeAsistencias;
-        iniciarListenersDelLector();
-        start();
     }
 
     public void iniciarListenersDelLector() {
@@ -63,7 +62,6 @@ public final class MonitorDeHuella extends javax.swing.JFrame implements Runnabl
                     public void run() {
                         logTextArea.append("Huella capturada\n");
                         procesarCaptura(e.getSample());
-                        //TODO: We can identify the huella con la base de datos aqui
                         reclutadorDeHuella.clear();
                     }
                 });

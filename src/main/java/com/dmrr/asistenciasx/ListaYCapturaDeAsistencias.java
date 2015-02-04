@@ -12,6 +12,7 @@ import com.digitalpersona.onetouch.verification.DPFPVerification;
 import com.digitalpersona.onetouch.verification.DPFPVerificationResult;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -52,10 +53,13 @@ public final class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
 
     EntityManager em;
     List profesorList;
+    List profesorListForKeypad;
     List templates = null;
     private List<Map> listaDeRegistros;
     JLabel jLabelHuellaNoReconocida;
     Query profesorQuery;
+    Query profesorQueryForKeyPad;
+
     VirdiFingerPrintSensor sensor;
 
     Configuracion c = new Configuracion();
@@ -70,12 +74,16 @@ public final class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
         Clock clock = new Clock(jLabelReloj, "hh:mm:ss MM/dd/yyyy");
         this.generaTablaRegistros();
         this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+
         if (c.get("digitalpersona")) {
             monitorDeHuella = new MonitorDeHuella(jTextArea1, this);
+            System.out.println("digitalpersonaactivated");
         }
+
         em = javax.persistence.Persistence.createEntityManagerFactory("asistenciasx?zeroDateTimeBehavior=convertToNullPU").createEntityManager();
 
-        profesorQuery = em.createQuery("SELECT p FROM Profesor p ");//WHERE p.huella is not null");
+        profesorQuery = em.createQuery("SELECT p FROM Profesor p WHERE p.huella is not null");
+        profesorQueryForKeyPad = em.createQuery("SELECT p FROM Profesor p");
 
         ventanaDeProfesor = new VentanaDeAsistenciaDeProfesor();
         createjLabelHuellaNoReconocida();
@@ -100,7 +108,7 @@ public final class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
                 setVisible(false);
                 if (sensor != null) {
                     sensor.shutdown = true;
-                    while(sensor.capturing){
+                    while (sensor.capturing) {
                         System.out.println("esperando a que el sensor termine...");
                     }
                 }
@@ -113,9 +121,11 @@ public final class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
         refreshListaDeProfesores();
 
         if (c.get("teclado")) {
+            System.out.println("loginViaNumPad activated");
             loginViaNumPad();
         }
         if (c.get("virdi")) {
+            System.out.println("loginViaVirdi Activated");
             loginViaVirdi();
         }
     }
@@ -123,6 +133,10 @@ public final class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
     VentanaDeAsistenciaDeProfesor ventanaDeProfesor;
 
     public void checarAsistencia(DPFPVerification verification, DPFPFeatureSet huellaCapturada) {
+        if (jScrollPane1.getViewport().getView().equals(ventanaDeProfesor.getRootPane())) {
+            System.out.println("Ventana de asistencia abierta ignoring requests!.");
+            return;
+        }
         Boolean teacherFound = false;
         for (Iterator it = profesorList.iterator(); it.hasNext();) {
             Profesor profesor = (Profesor) it.next();
@@ -390,26 +404,45 @@ public final class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
             Profesor profesor = (Profesor) it.next();
             em.refresh(profesor);
         }
+
+        profesorListForKeypad = profesorQueryForKeyPad.getResultList();
+        for (Iterator it = profesorListForKeypad.iterator(); it.hasNext();) {
+            Profesor profesor = (Profesor) it.next();
+            em.refresh(profesor);
+        }
     }
 
     private void loginViaNumPad() {
         Action numpadAction = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                jLabelCodigoProfesor.setText(jLabelCodigoProfesor.getText() + e.getActionCommand());
+                if (jScrollPane1.getViewport().getView().equals(ventanaDeProfesor.getRootPane())) {
+                    System.out.println("Ventana de asistencia abierta ignoring requests!.");
+                    return;
+                }
+                if (e.getActionCommand().equals("+")) {
+                    jLabelCodigoProfesor.setText("");
+                } else {
+                    jLabelCodigoProfesor.setText(jLabelCodigoProfesor.getText() + e.getActionCommand());
+                }
                 if (jLabelCodigoProfesor.getText().length() == 7) {
                     Boolean teacherFound = false;
-                    for (Iterator it = profesorList.iterator(); it.hasNext();) {
+                    if (jScrollPane1.getViewport().getView().equals(ventanaDeProfesor.getRootPane())) {
+                        System.out.println("Ventana de asistencia abierta ignoring requests!.");
+                        return;
+                    }
+                    for (Iterator it = profesorListForKeypad.iterator(); it.hasNext();) {
                         Profesor profesor = (Profesor) it.next();
-                        try{
-                        if (profesor.getIdprofesor().equals(Integer.parseInt(jLabelCodigoProfesor.getText()))) {
-                            jTextArea1.append("El profesor: " + profesor.getNombres() + " puso su dedo en el sensor\n");
-                            ventanaDeProfesor.llenaVentanaDeDatos(profesor);
-                            jScrollPane1.setViewportView(ventanaDeProfesor.getRootPane());
-                            setTablaDeRegistrosBackAfterSomeTime();
-                            teacherFound = true;
-                            break;
-                        }}catch(NumberFormatException ee){
+                        try {
+                            if (profesor.getIdprofesor().equals(Integer.parseInt(jLabelCodigoProfesor.getText()))) {
+                                jTextArea1.append("El profesor: " + profesor.getNombres() + " accedio via codigo de profesor\n");
+                                ventanaDeProfesor.llenaVentanaDeDatos(profesor);
+                                jScrollPane1.setViewportView(ventanaDeProfesor.getRootPane());
+                                setTablaDeRegistrosBackAfterSomeTime();
+                                teacherFound = true;
+                                break;
+                            }
+                        } catch (NumberFormatException ee) {
                             jLabelCodigoProfesor.setText("");
                         }
                     }
