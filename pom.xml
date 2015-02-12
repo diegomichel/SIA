@@ -135,6 +135,11 @@
             <artifactId>opencsv</artifactId>
             <version>2.3</version>
         </dependency>
+        <dependency>
+            <groupId>u</groupId>
+            <artifactId>biobsp</artifactId>
+            <version>1</version>
+        </dependency>
     </dependencies>
     
     

@@ -239,7 +239,7 @@ public final class VirdiFingerPrintSensor {
                                     break;
                                 case VIRDICodes.FASTSEARCH_IDENTIFY_FAIL:
                                     System.out.println("FASTSEARCH_IDENTIFY_FAIL");
-                                    w.fireHuellaNoReconocida();
+                                    w.fireNoEncontrado("");
                                     break;
                                 default:
                                     JOptionPane.showMessageDialog(t, "Error def" + errorCodeIndentify);

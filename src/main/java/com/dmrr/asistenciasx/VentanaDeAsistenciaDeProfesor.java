@@ -40,7 +40,6 @@ import org.jdesktop.swingbinding.JTableBinding.ColumnBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
-import sun.swing.table.DefaultTableCellHeaderRenderer;
 
 /**
  *
@@ -197,7 +196,7 @@ public final class VentanaDeAsistenciaDeProfesor extends javax.swing.JFrame {
         jTable3.setAutoResizeMode(AUTO_RESIZE_SUBSEQUENT_COLUMNS);
 
         DefaultTableCellRenderer centerRendererForCells = new DefaultTableCellRenderer();
-        DefaultTableCellHeaderRenderer centerRendererForHeaders = new DefaultTableCellHeaderRenderer();
+        sun.swing.table.DefaultTableCellHeaderRenderer centerRendererForHeaders = new sun.swing.table.DefaultTableCellHeaderRenderer();
         centerRendererForCells.setHorizontalAlignment(JLabel.CENTER);
         centerRendererForHeaders.setHorizontalAlignment(JLabel.CENTER);
 

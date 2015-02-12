@@ -456,7 +456,9 @@ public final class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
                 if (jScrollPane1.getViewport().getView().equals(ventanaDeProfesor.getRootPane())) {
                     return;
                 }
-                if (e.getActionCommand().equals("+")) {
+                System.out.println(e.getActionCommand());
+                
+                if (e.getActionCommand().equals("+") || e.getActionCommand().contains("\n")) {
                     jLabelCodigoProfesor.setText("");
                 } else {
                     jLabelCodigoProfesor.setText(jLabelCodigoProfesor.getText() + e.getActionCommand());
@@ -484,8 +486,7 @@ public final class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
                         }
                     }
                     if (!teacherFound) {
-                        jScrollPane1.setViewportView(jLabelHuellaNoReconocida);
-                        setTablaDeRegistrosBackAfterSomeTime();
+                        fireNoEncontrado("Codigo de profesor incorrecto, trate de nuevo.");
                     }
                     jLabelCodigoProfesor.setText("");
                 }
@@ -532,6 +533,37 @@ public final class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
 
         this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, true), "enterlol");
         this.getRootPane().getActionMap().put("enterlol", numpadAction);
+        
+        //Number at normal keyboard...
+        this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_0, 0, false), "0");
+        this.getRootPane().getActionMap().put("0", numpadAction);
+
+        this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_1, 0, false), "1");
+        this.getRootPane().getActionMap().put("1", numpadAction);
+
+        this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_2, 0, false), "2");
+        this.getRootPane().getActionMap().put("2", numpadAction);
+
+        this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_3, 0, false), "3");
+        this.getRootPane().getActionMap().put("3", numpadAction);
+
+        this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_4, 0, false), "4");
+        this.getRootPane().getActionMap().put("4", numpadAction);
+
+        this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_5, 0, false), "5");
+        this.getRootPane().getActionMap().put("5", numpadAction);
+
+        this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_6, 0, false), "6");
+        this.getRootPane().getActionMap().put("6", numpadAction);
+
+        this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_7, 0, false), "7");
+        this.getRootPane().getActionMap().put("7", numpadAction);
+
+        this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_8, 0, false), "8");
+        this.getRootPane().getActionMap().put("8", numpadAction);
+
+        this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_9, 0, false), "9");
+        this.getRootPane().getActionMap().put("9", numpadAction);
     }
 
     void loginViaVirdi() {
@@ -547,9 +579,13 @@ public final class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
         setTablaDeRegistrosBackAfterSomeTime();
 
     }
-
-    void fireHuellaNoReconocida() {
+     void fireNoEncontrado(String text) {
+        if(text.equals("")){
+            text = "Huella no reconocida, trate de nuevo";
+        }
+        jLabelHuellaNoReconocida.setText(text);
         jScrollPane1.setViewportView(jLabelHuellaNoReconocida);
         setTablaDeRegistrosBackAfterSomeTime();
     }
+    
 }
