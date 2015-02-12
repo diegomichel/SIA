@@ -197,7 +197,7 @@ public final class VentanaDeAsistenciaDeProfesor extends javax.swing.JFrame {
         jTable3.setAutoResizeMode(AUTO_RESIZE_SUBSEQUENT_COLUMNS);
 
         DefaultTableCellRenderer centerRendererForCells = new DefaultTableCellRenderer();
-        DefaultTableCellRenderer centerRendererForHeaders = new DefaultTableCellHeaderRenderer();
+        DefaultTableCellHeaderRenderer centerRendererForHeaders = new DefaultTableCellHeaderRenderer();
         centerRendererForCells.setHorizontalAlignment(JLabel.CENTER);
         centerRendererForHeaders.setHorizontalAlignment(JLabel.CENTER);
 
@@ -413,7 +413,7 @@ public final class VentanaDeAsistenciaDeProfesor extends javax.swing.JFrame {
                 //TODO Code for testing porpouses.
                 EntityManager em;
                 em = javax.persistence.Persistence.createEntityManagerFactory("asistenciasx?zeroDateTimeBehavior=convertToNullPU").createEntityManager();
-                Profesor profesor = em.find(Profesor.class, 2732238);
+                Profesor profesor = em.find(Profesor.class, 1111111);
                 new VentanaDeAsistenciaDeProfesor(profesor).setVisible(true);
             }
         });

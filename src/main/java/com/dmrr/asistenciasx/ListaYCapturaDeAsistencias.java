@@ -19,6 +19,8 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.swing.AbstractAction;
@@ -92,29 +94,52 @@ public final class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
         Action escapeAction = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (c.get("digitalpersona")) {
-                    monitorDeHuella.lectorDeHuella.stopCapture();
-                }
-                if (parent == null) {
-                    System.exit(0);
-                }
-                if (parent.parent == null) {
-                    parent.setVisible(true);
-                    setVisible(false);
-                    dispose();
-                    return;
-                }
-                parent.parent.setVisible(true);
-                setVisible(false);
-                if (sensor != null) {
-                    sensor.shutdown = true;
-                    System.out.println("esperando a que el sensor termine...");
-                    while (sensor.capturing) {
-                        //System.out.println("esperando a que el sensor termine...");
+                final ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+                Runnable nonBlockingReturnToMain = new Runnable() {
+                    @Override
+                    public void run() {
+                        if (jScrollPane1.getViewport().getView().equals(ventanaDeProfesor.getRootPane()) || jScrollPane1.getViewport().getView().equals(jLabelHuellaNoReconocida)) {
+                            return;
+                        }
+
+                        if (c.get("digitalpersona")) {
+                            monitorDeHuella.lectorDeHuella.stopCapture();
+                        }
+                        if (parent == null) {
+                            System.exit(0);
+                        }
+                        if (parent.parent == null) {
+                            parent.setVisible(true);
+                            setVisible(false);
+                            dispose();
+                            return;
+                        }
+
+                        if (sensor != null) {
+                            sensor.shutdown = true;
+                            System.out.println("esperando a que el sensor VIRDI termine...");
+                            jLabelHuellaNoReconocida.setText("Desactivando sensor VIRDI, espere un momento.");
+                            jScrollPane1.setViewportView(jLabelHuellaNoReconocida);
+                            while (sensor.capturing) {
+                                System.out.println("waiting for sensor to stop...");
+                                try {
+                                    Thread.sleep(1000);
+                                } catch (InterruptedException ex) {
+                                    Logger.getLogger(ListaYCapturaDeAsistencias.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                            }
+                            System.out.println("Sensor Virdi Done we can go.....");
+                            jLabelHuellaNoReconocida.setText("Huella no reconocida, trate de nuevo.");
+                            jScrollPane1.setViewportView(jLabelHuellaNoReconocida);
+                        }
+                        parent.parent.setVisible(true);
+                        setVisible(false);
+                        dispose();
                     }
-                }
-                dispose();
+                };
+                service.execute(nonBlockingReturnToMain);
             }
+
         };
         this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escapeKeyStroke, "ESCAPE");
         this.getRootPane().getActionMap().put("ESCAPE", escapeAction);
@@ -128,6 +153,13 @@ public final class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
         if (c.get("virdi")) {
             System.out.println("loginViaVirdi Activated");
             loginViaVirdi();
+            if(!sensor.isSensorConnected()){
+                System.err.println("El sensor no ta conectado.");
+                sensor.close();
+                sensor = null;
+                return;
+            }
+            sensor.esperaPorHuella(canvas1, jTextArea1, this);
         }
     }
 
@@ -135,7 +167,6 @@ public final class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
 
     public void checarAsistencia(DPFPVerification verification, DPFPFeatureSet huellaCapturada) {
         if (jScrollPane1.getViewport().getView().equals(ventanaDeProfesor.getRootPane())) {
-            System.out.println("Ventana de asistencia abierta ignoring requests!.");
             return;
         }
         Boolean teacherFound = false;
@@ -200,7 +231,7 @@ public final class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
         jLabelCodigoProfesor = new javax.swing.JLabel();
-        canvas = new java.awt.Canvas();
+        canvas1 = new java.awt.Canvas();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(255, 255, 255));
@@ -261,12 +292,13 @@ public final class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
                         .addComponent(jLabel5)
                         .addGap(18, 199, Short.MAX_VALUE)
                         .addComponent(jLabelCodigoProfesor, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 200, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 119, Short.MAX_VALUE)
+                        .addComponent(canvas1, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabelReloj))
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addComponent(jScrollPane2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(canvas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(10, 10, 10)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -277,13 +309,13 @@ public final class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
                     .addComponent(jLabel1)
                     .addComponent(jLabel5)
                     .addComponent(jLabelReloj)
-                    .addComponent(jLabelCodigoProfesor))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(canvas1, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabelCodigoProfesor)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 478, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 482, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(canvas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
@@ -337,7 +369,7 @@ public final class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private java.awt.Canvas canvas;
+    private java.awt.Canvas canvas1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabelCodigoProfesor;
@@ -417,19 +449,23 @@ public final class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
         Action numpadAction = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                if(sensor != null && sensor.shutdown){
+                    System.out.println("Shoutdown in progress please wait...");
+                    return;
+                }
                 if (jScrollPane1.getViewport().getView().equals(ventanaDeProfesor.getRootPane())) {
-                    System.out.println("Ventana de asistencia abierta ignoring requests!.");
                     return;
                 }
                 if (e.getActionCommand().equals("+")) {
                     jLabelCodigoProfesor.setText("");
                 } else {
                     jLabelCodigoProfesor.setText(jLabelCodigoProfesor.getText() + e.getActionCommand());
+                    //jLabelHuellaNoReconocida.setText(jLabelCodigoProfesor.getText() + e.getActionCommand());
+                    //jScrollPane1.setViewportView(jLabelHuellaNoReconocida);
                 }
                 if (jLabelCodigoProfesor.getText().length() == 7) {
                     Boolean teacherFound = false;
                     if (jScrollPane1.getViewport().getView().equals(ventanaDeProfesor.getRootPane())) {
-                        System.out.println("Ventana de asistencia abierta ignoring requests!.");
                         return;
                     }
                     for (Iterator it = profesorListForKeypad.iterator(); it.hasNext();) {
@@ -500,10 +536,7 @@ public final class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
 
     void loginViaVirdi() {
         sensor = new VirdiFingerPrintSensor();
-        if (sensor.inicializaSensor()) {
-            sensor.preparaEngine(profesorList);
-            sensor.esperaPorHuella(canvas, jTextArea1, this);
-        }
+        sensor.preparaEngine(profesorListForKeypad);
     }
 
     void fireAsistencia(Integer profesorID) {
