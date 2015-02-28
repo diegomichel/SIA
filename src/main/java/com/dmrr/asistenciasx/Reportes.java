@@ -72,6 +72,7 @@ public class Reportes extends javax.swing.JFrame {
         jDateChooser.setDate(new Date());
     }
     Main parent;
+
     Reportes(Main aThis) {
         this();
         parent = aThis;
@@ -115,6 +116,7 @@ public class Reportes extends javax.swing.JFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         jTableFaltas = new javax.swing.JTable();
         jButton1 = new javax.swing.JButton();
+        jButtonRemoverFalta1 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jComboBoxRango = new javax.swing.JComboBox();
         jTextFieldFilterText = new javax.swing.JTextField();
@@ -184,12 +186,21 @@ public class Reportes extends javax.swing.JFrame {
             }
         });
 
+        jButtonRemoverFalta1.setText("Remover TODAS Las Faltas");
+        jButtonRemoverFalta1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonRemoverFalta1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jButtonRemoverFalta1)
+                .addGap(18, 18, 18)
                 .addComponent(jButton1)
                 .addGap(18, 18, 18)
                 .addComponent(jButtonRemoverFalta))
@@ -202,7 +213,8 @@ public class Reportes extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButtonRemoverFalta)
-                    .addComponent(jButton1)))
+                    .addComponent(jButton1)
+                    .addComponent(jButtonRemoverFalta1)))
         );
 
         jButton3.setText("Generar reportes del");
@@ -396,6 +408,46 @@ public class Reportes extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextFieldFilterTextActionPerformed
 
+    private void jButtonRemoverFalta1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRemoverFalta1ActionPerformed
+        // TODO add your handling code here:
+        if (JOptionPane.showConfirmDialog(parent, "Esta seguro de querer remover todas las faltas?, esta operacion no se podra deshacer.") == 0) {
+            for (int i = 0; i < jTableFaltas.getRowCount(); i++) {
+                String hora = (String) jTableFaltas.getValueAt(i, 5);
+
+                Integer idhorario = (Integer) jTableFaltas.getValueAt(i, 0);
+
+                if (hora.length() == 3) {
+                    hora = hora.substring(0, 1);
+                }
+                if (hora.length() == 4) {
+                    hora = hora.substring(0, 2);
+                }
+
+                em.getTransaction().begin();
+
+                Registro registro = new Registro();
+                registro.setIdhorario(idhorario);
+
+                Calendar cal = dateTime.toCalendar(Locale.ENGLISH);
+                cal.set(Calendar.HOUR_OF_DAY, Integer.parseInt(hora));
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
+
+                registro.setFechayhora(cal.getTime());
+
+                em.persist(registro);
+                em.getTransaction().commit();
+                listaDeshacer.add(registro.getIdregistro());
+
+            }
+            loadTables(jDateChooser.getDate());
+
+            miFiltroAsistencias();
+            miFiltroFaltas();
+        }
+
+    }//GEN-LAST:event_jButtonRemoverFalta1ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -431,6 +483,7 @@ public class Reportes extends javax.swing.JFrame {
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButtonRemoverFalta;
+    private javax.swing.JButton jButtonRemoverFalta1;
     private javax.swing.JComboBox jComboBoxRango;
     private com.toedter.calendar.JDateChooser jDateChooser;
     private javax.swing.JLabel jLabel1;
@@ -454,7 +507,7 @@ public class Reportes extends javax.swing.JFrame {
 
     private void loadTables(Date date) {
         dateTime = new DateTime(date);
-        FixAsistenciasOfDay fixer = new FixAsistenciasOfDay(dateTime.getYear()+"-"+dateTime.getMonthOfYear()+"-"+dateTime.getDayOfMonth());
+        FixAsistenciasOfDay fixer = new FixAsistenciasOfDay(dateTime.getYear() + "-" + dateTime.getMonthOfYear() + "-" + dateTime.getDayOfMonth());
         jTableAsistencias.setModel(new DefaultTableModel());
         jTableFaltas.setModel(new DefaultTableModel());
 
@@ -567,7 +620,7 @@ public class Reportes extends javax.swing.JFrame {
             columnBinding = jTableBinding.addColumnBinding(ELProperty.create("${idhorario}"));
             columnBinding.setColumnName("ID");
             columnBinding.setColumnClass(Integer.class);
-            
+
             columnBinding = jTableBinding.addColumnBinding(ELProperty.create("${Codigo}"));
             columnBinding.setColumnName("Codigo");
             columnBinding.setColumnClass(Integer.class);
@@ -599,14 +652,14 @@ public class Reportes extends javax.swing.JFrame {
 
         }
         generateFiltersAndSorters();
-        
+
         TitledBorder border;
         border = (TitledBorder) jPanel1.getBorder();
-        border.setTitle("Asistencias: "+jTableAsistencias.getRowCount());
+        border.setTitle("Asistencias: " + jTableAsistencias.getRowCount());
         jPanel1.setBorder(border);
-        
+
         border = (TitledBorder) jPanel2.getBorder();
-        border.setTitle("Faltas: "+jTableFaltas.getRowCount());
+        border.setTitle("Faltas: " + jTableFaltas.getRowCount());
         jPanel2.setBorder(border);
     }
 
