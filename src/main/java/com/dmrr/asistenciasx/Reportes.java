@@ -27,6 +27,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.swing.JOptionPane;
 import javax.swing.RowFilter;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
@@ -598,7 +599,15 @@ public class Reportes extends javax.swing.JFrame {
 
         }
         generateFiltersAndSorters();
-
+        
+        TitledBorder border;
+        border = (TitledBorder) jPanel1.getBorder();
+        border.setTitle("Asistencias: "+jTableAsistencias.getRowCount());
+        jPanel1.setBorder(border);
+        
+        border = (TitledBorder) jPanel2.getBorder();
+        border.setTitle("Faltas: "+jTableFaltas.getRowCount());
+        jPanel2.setBorder(border);
     }
 
     private void generateFiltersAndSorters() {
