@@ -228,7 +228,7 @@ public final class VentanaDeAsistenciaDeProfesor extends javax.swing.JFrame {
                 cellComponent.setBackground(new Color(255, 255, 255));
             } else if (row % 2 == 1) {
                 cellComponent.setBackground(new Color(245, 245, 245));
-                
+
             }
             cellComponent.setFont(new Font("VERDANA", Font.BOLD, 14));
             return cellComponent;
@@ -519,7 +519,6 @@ public final class VentanaDeAsistenciaDeProfesor extends javax.swing.JFrame {
                         generaAsistencia(row);
                     }
                 }
-                break;
             } else if (horaEntrada.equals(horaString)) {
                 jLabelNombreDeMateria.setText(row.get("nombre") + "");
                 jLabelHoraDeEntrada.setText(row.get("horaEntrada") + "-" + row.get("horaSalida"));
@@ -548,39 +547,48 @@ public final class VentanaDeAsistenciaDeProfesor extends javax.swing.JFrame {
     }
 
     private void generaAsistencia(Map row) {
+        String fecha = dateTime.getYear() +"-"+ dateTime.getMonthOfYear()+ "-" + dateTime.getDayOfMonth();
+        Query checkIfAsistenciaExiste = em.createNativeQuery(
+                "SELECT * FROM asistenciasx.registro WHERE idhorario = '" + row.get("idhorario") + "' AND fechayhora BETWEEN '" + fecha + " 00:00:00' AND '" + fecha + " 23:55:55'"
+        );
+        try {
+            Object x = checkIfAsistenciaExiste.getSingleResult();
+            // Do nada
+        } catch (javax.persistence.NoResultException e) {
+            Registro registro = new Registro();
+            registro.setFechayhora(dateTime.toDate());
+            registro.setIdhorario(Integer.parseInt(row.get("idhorario") + ""));
 
-        Registro registro = new Registro();
-        registro.setFechayhora(dateTime.toDate());
-        registro.setIdhorario(Integer.parseInt(row.get("idhorario") + ""));
-        em.getTransaction().begin();
-        em.persist(registro);
-        em.getTransaction().commit();
+            em.getTransaction().begin();
+            em.persist(registro);
+            em.getTransaction().commit();
+
+        } catch (javax.persistence.NonUniqueResultException ex) {
+            // Do nada
+        }
     }
 
     private boolean yaSeRegistroAsistencia() {
         dateTime = new DateTime();
         Integer minuto = Integer.parseInt(dateTime.toString(DateTimeFormat.forPattern("m")));
-        System.out.println(minuto);
         String fechayhora;
         if (minuto >= 45) {
             dateTime = dateTime.plusHours(1);
             fechayhora = dateTime.toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:00:00"));
-            System.out.println(fechayhora);
             dateTime = dateTime.minusHours(1);
         } else {
             fechayhora = dateTime.toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:00:00"));
         }
 
-        //String fechayhora = dateTime.toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:00:00"));
         Query yaSeRegistro = em.createNativeQuery("SELECT * FROM registrodeasistencias WHERE idprofesor = " + profesor.getIdprofesor() + " AND fechayhora BETWEEN '" + fechayhora + "' - INTERVAL 15 MINUTE AND '" + fechayhora + "' + INTERVAL 15 MINUTE");
-        System.out.println(yaSeRegistro.toString());
+
         try {
             Object x = yaSeRegistro.getSingleResult();
+            return true;
         } catch (javax.persistence.NoResultException e) {
             return false;
         } catch (javax.persistence.NonUniqueResultException ex) {
             return true;
         }
-        return true;
     }
 }
