@@ -21,7 +21,7 @@ import org.joda.time.DateTime;
  * @author diegomichel
  */
 public class FixAsistenciasOfDay {
-    
+
     EntityManager em;
     DateTime dateTime;
     private List<Map> results;
@@ -32,7 +32,7 @@ public class FixAsistenciasOfDay {
         conectarDB();
         convertirAccesoToAsistencias();
     }
-    
+
     public void conectarDB() {
         em = javax.persistence.Persistence.createEntityManagerFactory("asistenciasx?zeroDateTimeBehavior=convertToNullPU").createEntityManager();
     }
@@ -64,10 +64,17 @@ public class FixAsistenciasOfDay {
             em.getTransaction().commit();
         } catch (javax.persistence.NonUniqueResultException ex) {
             em.getTransaction().begin();
-            em.createNativeQuery("DELETE FROM asistenciasx.registro WHERE idhorario = '" + row.get("idhorario") +"'").executeUpdate();
+            em.createNativeQuery("DELETE FROM asistenciasx.registro WHERE idhorario = '" + row.get("idhorario") + "'").executeUpdate();
             em.getTransaction().commit();
             System.out.println("Deleting falta");
-            generaAsistencia(row);
+
+            System.out.println("Restoring falta");
+            Registro registro = new Registro();
+            registro.setFechayhora(dateTime.toDate());
+            registro.setIdhorario(Integer.parseInt(row.get("idhorario") + ""));
+            em.getTransaction().begin();
+            em.persist(registro);
+            em.getTransaction().commit();
         }
     }
 
