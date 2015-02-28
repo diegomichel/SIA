@@ -6,6 +6,7 @@
 package com.dmrr.asistenciasx;
 
 import java.util.Calendar;
+import java.util.Map;
 
 /**
  *
@@ -61,6 +62,16 @@ public class MyUtils {
          
          return day;
     }
+    
+    public static Integer getDayOfWeek(String[] date){
+         Calendar calendario = Calendar.getInstance();
+         calendario.set(Integer.parseInt(date[0]), Integer.parseInt(date[1]), Integer.parseInt(date[2]));
+         int day = calendario.get(Calendar.DAY_OF_WEEK);
+         if(day == 1) day = 2;
+         
+         return day;
+    }
+
 
     public static String getTodayString3Char() {
         Calendar calendario = Calendar.getInstance();
@@ -70,5 +81,17 @@ public class MyUtils {
         if(day == 1) day = 2;
         
         return intToDay(day);
+    }
+    
+    public static void convertHorariosFromBooleanToHours(Map row, String dia) {
+        if (row.get(dia) == null) {
+            return;
+        }
+        if (row.get(dia).equals(true)) {
+            row.replace(dia, row.get("horaEntrada") + "-" + row.get("horaSalida"));
+        }
+        if (row.get(dia).equals(false)) {
+            row.replace(dia, "");
+        }
     }
 }

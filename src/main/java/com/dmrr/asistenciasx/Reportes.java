@@ -50,6 +50,7 @@ import org.jdesktop.beansbinding.ELProperty;
 import org.jdesktop.swingbinding.JTableBinding;
 import org.jdesktop.swingbinding.SwingBindings;
 import org.joda.time.DateTime;
+import otherPackages.FixAsistenciasOfDay;
 
 /**
  *
@@ -365,7 +366,6 @@ public class Reportes extends javax.swing.JFrame {
                 generaReportesPDF();
                 dateTime = dateTime.plusDays(1);
             }
-
         } else if (jComboBoxRango.getSelectedIndex() == 2) {
             int month = dateTime.getMonthOfYear();
             int dayOfMonth = dateTime.getDayOfMonth() - 1;
@@ -454,7 +454,7 @@ public class Reportes extends javax.swing.JFrame {
 
     private void loadTables(Date date) {
         dateTime = new DateTime(date);
-
+        FixAsistenciasOfDay fixer = new FixAsistenciasOfDay(dateTime.getYear()+"-"+dateTime.getMonthOfYear()+"-"+dateTime.getDayOfMonth());
         jTableAsistencias.setModel(new DefaultTableModel());
         jTableFaltas.setModel(new DefaultTableModel());
 
