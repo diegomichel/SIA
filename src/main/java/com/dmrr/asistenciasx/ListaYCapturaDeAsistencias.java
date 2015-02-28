@@ -456,9 +456,13 @@ public final class ListaYCapturaDeAsistencias extends javax.swing.JFrame {
                 if (jScrollPane1.getViewport().getView().equals(ventanaDeProfesor.getRootPane())) {
                     return;
                 }
+                if (jScrollPane1.getViewport().getView().equals(jLabelHuellaNoReconocida)) {
+                    return;
+                }
+                
                 System.out.println(e.getActionCommand());
                 
-                if (e.getActionCommand().equals("+") || e.getActionCommand().contains("\n")) {
+                if (e.getActionCommand().equals("+") || e.getActionCommand().contains("\n") || e.getActionCommand().contains("-")) {
                     jLabelCodigoProfesor.setText("");
                 } else {
                     jLabelCodigoProfesor.setText(jLabelCodigoProfesor.getText() + e.getActionCommand());
