@@ -473,6 +473,7 @@ public final class VentanaDeAsistenciaDeProfesor extends javax.swing.JFrame {
         String horaString = hora + "00";
 
         boolean checaHoraConsecutiva = false;
+        boolean horaChecada = false;
         for (Map row : results) {
             switch (MyUtils.getDayOfWeek()) {
                 case 2:
@@ -513,10 +514,12 @@ public final class VentanaDeAsistenciaDeProfesor extends javax.swing.JFrame {
                 horaString = (hora + 1) + "00";
                 if (horaEntrada.equals(horaString)) {
                     generaAsistencia(row);
+                    horaChecada = true;
                 } else {
                     horaString = (hora + 2) + "00";
                     if (horaEntrada.equals(horaString)) {
                         generaAsistencia(row);
+                        horaChecada = true;
                     }
                 }
             } else if (horaEntrada.equals(horaString)) {
@@ -527,10 +530,11 @@ public final class VentanaDeAsistenciaDeProfesor extends javax.swing.JFrame {
                 jLabelResultadoDeRegistro.setText("Se ha registrado su asistencia!");
 
                 generaAsistencia(row);
+                horaChecada = true;
                 checaHoraConsecutiva = true;
             }
         }
-        if (!jLabelResultadoDeRegistro.getText().equals("Se ha registrado su asistencia!")) {
+        if (!horaChecada) {
             jLabelResultadoDeRegistro.setIcon(infoImage);
             jLabelResultadoDeRegistro.setText("No tiene materia a esta hora!");
         }
